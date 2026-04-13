@@ -6,31 +6,30 @@
   <title>Your Name — Data Scientist & ML Engineer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #faf9f7;
-      --surface: #ffffff;
-      --text-primary: #1a1a18;
+      --bg:             #faf9f7;
+      --surface:        #ffffff;
+      --text-primary:   #1a1a18;
       --text-secondary: #5a5a56;
-      --text-muted: #9a9a94;
-      --border: rgba(26,26,24,0.12);
-      --border-hover: rgba(26,26,24,0.25);
-      --radius-md: 8px;
-      --radius-lg: 14px;
+      --text-muted:     #9a9a94;
+      --border:         rgba(26,26,24,0.10);
+      --border-mid:     rgba(26,26,24,0.18);
+      --radius:         10px;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #131312;
-        --surface: #1e1e1c;
-        --text-primary: #f0ede8;
+        --bg:             #131312;
+        --surface:        #1e1e1c;
+        --text-primary:   #f0ede8;
         --text-secondary: #999890;
-        --text-muted: #5a5a54;
-        --border: rgba(240,237,232,0.10);
-        --border-hover: rgba(240,237,232,0.22);
+        --text-muted:     #5a5a54;
+        --border:         rgba(240,237,232,0.08);
+        --border-mid:     rgba(240,237,232,0.18);
       }
     }
 
@@ -39,19 +38,18 @@
     body {
       background: var(--bg);
       color: var(--text-primary);
-      font-family: 'DM Mono', monospace;
-      font-size: 14px;
-      line-height: 1.6;
+      font-family: 'Lato', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
       -webkit-font-smoothing: antialiased;
     }
 
     a { color: inherit; text-decoration: none; }
 
-    /* ── Layout ── */
     .wrap {
-      max-width: 900px;
+      max-width: 880px;
       margin: 0 auto;
-      padding: 2.5rem 2rem;
+      padding: 2.5rem 1.75rem;
     }
 
     /* ── Nav ── */
@@ -59,16 +57,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 0.5px solid var(--border);
-      padding-bottom: 1.25rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 0.5px solid var(--border-mid);
       margin-bottom: 4rem;
     }
 
     .nav-logo {
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 400;
     }
 
     .nav-links {
@@ -78,7 +75,7 @@
     }
 
     .nav-links a {
-      font-size: 11px;
+      font-size: 12px;
       letter-spacing: 0.10em;
       text-transform: uppercase;
       color: var(--text-secondary);
@@ -90,33 +87,88 @@
     /* ── Hero ── */
     .hero {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3.5rem;
-      align-items: end;
+      grid-template-columns: 160px 1fr;
+      gap: 3rem;
+      align-items: center;
       margin-bottom: 5rem;
     }
 
-    .hero-name {
-      font-family: 'DM Serif Display', serif;
-      font-size: 54px;
-      font-weight: 400;
-      line-height: 1.08;
+    .avatar-wrap {
+      display: flex;
+      justify-content: center;
     }
 
-    .hero-name em {
+    .avatar {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      border: 2px solid var(--border-mid);
+      display: block;
+    }
+
+    /* Shown until you add assets/avatar.jpg */
+    .avatar-placeholder {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px dashed var(--border-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+
+    .hero-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 46px;
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-text h1 em {
       font-style: italic;
       color: var(--text-secondary);
     }
 
     .hero-bio {
-      font-size: 12.5px;
-      line-height: 1.9;
+      font-size: 14px;
+      line-height: 1.85;
       color: var(--text-secondary);
-      border-left: 1px solid var(--border-hover);
-      padding-left: 1.25rem;
+      max-width: 480px;
+      margin-bottom: 1.25rem;
     }
 
-    /* ── Section label ── */
+    .hero-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-pill {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border: 0.5px solid var(--border-mid);
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .btn-pill:hover {
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    /* ── Section Label ── */
     .section-label {
       font-size: 10px;
       letter-spacing: 0.16em;
@@ -128,48 +180,51 @@
     }
 
     /* ── Projects ── */
-    #work { margin-bottom: 5rem; }
+    #projects { margin-bottom: 5rem; }
 
     .projects-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1.25rem;
     }
 
     .project-card {
       background: var(--surface);
       border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius);
       padding: 1.35rem;
       display: flex;
       flex-direction: column;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .project-card:hover { border-color: var(--border-hover); }
+    .project-card:hover {
+      border-color: var(--border-mid);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
 
     .project-tag {
       font-size: 10px;
       letter-spacing: 0.10em;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
     }
 
     .project-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 21px;
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
       font-weight: 400;
       line-height: 1.2;
       margin-bottom: 0.6rem;
     }
 
     .project-desc {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-secondary);
       line-height: 1.75;
       flex: 1;
-      margin-bottom: 1.1rem;
+      margin-bottom: 1rem;
     }
 
     .project-footer {
@@ -178,101 +233,166 @@
       align-items: center;
       padding-top: 0.85rem;
       border-top: 0.5px solid var(--border);
-    }
-
-    .stack {
-      display: flex;
-      gap: 6px;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 
+    .stack { display: flex; gap: 5px; flex-wrap: wrap; }
+
     .pill {
       font-size: 10px;
-      padding: 3px 9px;
+      padding: 3px 8px;
       border-radius: 20px;
-      border: 0.5px solid var(--border-hover);
+      border: 0.5px solid var(--border-mid);
       color: var(--text-secondary);
-      letter-spacing: 0.04em;
     }
 
-    .project-link {
+    .project-links { display: flex; gap: 0.75rem; }
+
+    .project-links a {
       font-size: 11px;
       color: var(--text-muted);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
       white-space: nowrap;
+    }
+
+    .project-links a:hover { color: var(--text-primary); }
+
+    /* ── Thesis ── */
+    #thesis { margin-bottom: 5rem; }
+
+    .thesis-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .thesis-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 0.4rem;
+    }
+
+    .thesis-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    /* ── Blog ── */
+    #blog { margin-bottom: 5rem; }
+
+    .blog-list { display: flex; flex-direction: column; }
+
+    .blog-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 1rem 0;
+      border-bottom: 0.5px solid var(--border);
+      gap: 1rem;
+    }
+
+    .blog-item:first-child { border-top: 0.5px solid var(--border); }
+
+    .blog-item:hover .blog-title { color: var(--text-primary); }
+
+    .blog-left { display: flex; flex-direction: column; gap: 0.2rem; }
+
+    .blog-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-secondary);
       transition: color 0.2s;
     }
 
-    .project-link:hover { color: var(--text-primary); }
+    .blog-summary {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .blog-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
 
     /* ── About ── */
     #about {
       display: grid;
       grid-template-columns: 1fr 2fr;
-      gap: 3.5rem;
+      gap: 3rem;
       margin-bottom: 5rem;
-      padding-top: 1rem;
     }
 
     .about-heading {
-      font-family: 'DM Serif Display', serif;
-      font-size: 30px;
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
       font-weight: 400;
       font-style: italic;
       color: var(--text-secondary);
-      line-height: 1.2;
+      line-height: 1.25;
     }
 
-    .about-text {
-      font-size: 12.5px;
+    .about-body {
+      font-size: 13.5px;
       line-height: 1.95;
       color: var(--text-secondary);
     }
 
-    .about-text p + p { margin-top: 1rem; }
+    .about-body p + p { margin-top: 1rem; }
 
     /* ── Contact ── */
-    #contact {
-      margin-bottom: 4rem;
-    }
+    #contact { margin-bottom: 4rem; }
 
-    .contact-inner {
+    .contact-box {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 1.75rem;
       border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius);
       background: var(--surface);
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
-    .contact-cta {
-      font-family: 'DM Serif Display', serif;
-      font-size: 22px;
+    .contact-box h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
       font-weight: 400;
     }
 
-    .contact-cta em { font-style: italic; color: var(--text-secondary); }
+    .contact-box h3 em { font-style: italic; color: var(--text-secondary); }
 
-    .contact-links {
-      display: flex;
-      gap: 1.25rem;
-    }
+    .contact-links { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
     .contact-links a {
       font-size: 11px;
-      letter-spacing: 0.10em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--text-secondary);
-      border: 0.5px solid var(--border-hover);
-      padding: 6px 14px;
+      border: 0.5px solid var(--border-mid);
+      padding: 7px 14px;
       border-radius: 20px;
-      transition: border-color 0.2s, color 0.2s;
+      transition: color 0.2s, border-color 0.2s;
     }
 
     .contact-links a:hover {
       color: var(--text-primary);
-      border-color: var(--border-hover);
+      border-color: var(--text-muted);
     }
 
     /* ── Footer ── */
@@ -282,22 +402,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .footer-copy {
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
+    .footer-copy { font-size: 11px; color: var(--text-muted); }
 
-    .footer-links {
-      display: flex;
-      gap: 1.5rem;
-    }
+    .footer-links { display: flex; gap: 1.5rem; }
 
     .footer-links a {
       font-size: 11px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
       color: var(--text-muted);
       transition: color 0.2s;
@@ -307,128 +422,231 @@
 
     /* ── Responsive ── */
     @media (max-width: 640px) {
-      .hero { grid-template-columns: 1fr; gap: 2rem; }
-      .hero-name { font-size: 38px; }
-      .projects-grid { grid-template-columns: 1fr; }
-      #about { grid-template-columns: 1fr; gap: 1.5rem; }
-      .contact-inner { flex-direction: column; gap: 1.25rem; text-align: center; }
-      .nav-links { gap: 1.25rem; }
+      .hero { grid-template-columns: 1fr; text-align: center; }
+      .hero-text h1 { font-size: 34px; }
+      .hero-bio { margin: 0 auto 1.25rem; }
+      .hero-links { justify-content: center; }
+      .avatar-wrap { justify-content: center; }
+      #about { grid-template-columns: 1fr; gap: 1rem; }
+      .nav-links { gap: 1rem; }
+      .thesis-card { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
+<div class="wrap">
 
-    <!-- Nav -->
-    <nav>
-      <span class="nav-logo">Your Name</span>
-      <ul class="nav-links">
-        <li><a href="#work">Work</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="https://github.com/yourusername" target="_blank">GitHub</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
+  <!-- ── Nav ── -->
+  <nav>
+    <span class="nav-logo">Your Name</span>
+    <ul class="nav-links">
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-    <!-- Hero -->
-    <header class="hero">
-      <div>
-        <h1 class="hero-name">Data Scientist<br><em>&amp; ML Engineer</em></h1>
-      </div>
+  <!-- ── Hero ── -->
+  <header class="hero">
+    <div class="avatar-wrap">
+      <!--
+        PHOTO: Replace the placeholder below with your actual photo.
+        1. Add your photo to: assets/avatar.jpg
+        2. Delete the <div class="avatar-placeholder"> block
+        3. Uncomment the <img> tag below:
+
+        <img src="assets/avatar.jpg" alt="Your Name" class="avatar" />
+      -->
+      <div class="avatar-placeholder">Your photo<br>assets/avatar.jpg</div>
+    </div>
+
+    <div class="hero-text">
+      <!-- Replace "Data Scientist" and the subtitle with your actual title -->
+      <h1>Data Scientist<br><em>&amp; ML Engineer</em></h1>
+
+      <!-- Replace with your own 2–3 sentence bio -->
       <p class="hero-bio">
         Building intelligent systems at the intersection of data, statistics, and machine learning.
-        Interested in explainable AI, NLP, and turning messy datasets into clean decisions.
+        Passionate about explainable AI, NLP, and turning messy datasets into clear decisions.
       </p>
-    </header>
 
-    <!-- Projects -->
-    <section id="work">
+      <!-- Replace yourusername and you@email.com -->
+      <div class="hero-links">
+        <a class="btn-pill" href="https://github.com/yourusername" target="_blank">GitHub</a>
+        <a class="btn-pill" href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
+        <a class="btn-pill" href="mailto:you@email.com">Email</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ════════════════════════════════════════
+         PROJECTS
+         ————————————————————————————————————————
+         For each project:
+         1. Create: projects/project-1.md in your repo
+         2. Write your project description in that file
+         3. The "Read more" link below points to that file
+         4. GitHub Pages converts .md → .html automatically
+         ════════════════════════════════════════ -->
+    <section id="projects">
       <p class="section-label">Selected Projects</p>
       <div class="projects-grid">
 
-        <!-- Project 1 — replace with your own -->
-        <div class="project-card">
-          <p class="project-tag">NLP · 2024</p>
-          <h2 class="project-title">Sentiment Analyser</h2>
+        <!-- Project 1 -->
+        <article class="project-card">
+          <p class="project-tag">NLP · 2024</p><!-- change category & year -->
+          <h2 class="project-title">Project Title One</h2>
           <p class="project-desc">
-            Fine-tuned BERT model classifying customer reviews across five sentiment
-            categories with 94% accuracy on a 40k sample corpus.
+            Brief description of your project. Explain the problem you solved,
+            the approach you took, and the key result or metric that shows impact.
           </p>
           <div class="project-footer">
             <div class="stack">
               <span class="pill">PyTorch</span>
               <span class="pill">HuggingFace</span>
-              <span class="pill">FastAPI</span>
             </div>
-            <a class="project-link" href="https://github.com/yourusername/project-1" target="_blank">github →</a>
+            <div class="project-links">
+              <a href="projects/project-1.md">Read more →</a>
+              <a href="https://github.com/yourusername/project-1" target="_blank">GitHub</a>
+            </div>
           </div>
-        </div>
+        </article>
 
         <!-- Project 2 -->
-        <div class="project-card">
+        <article class="project-card">
           <p class="project-tag">Computer Vision · 2024</p>
-          <h2 class="project-title">Retinal Scan Classifier</h2>
+          <h2 class="project-title">Project Title Two</h2>
           <p class="project-desc">
-            CNN pipeline detecting diabetic retinopathy stages from fundus images.
-            Achieved AUC 0.97 on the Kaggle EyePACS dataset.
+            Brief description of your project. Explain the problem you solved,
+            the approach you took, and the key result or metric that shows impact.
           </p>
           <div class="project-footer">
             <div class="stack">
               <span class="pill">TensorFlow</span>
               <span class="pill">OpenCV</span>
-              <span class="pill">GCP</span>
             </div>
-            <a class="project-link" href="https://github.com/yourusername/project-2" target="_blank">github →</a>
+            <div class="project-links">
+              <a href="projects/project-2.md">Read more →</a>
+              <a href="https://github.com/yourusername/project-2" target="_blank">GitHub</a>
+            </div>
           </div>
-        </div>
+        </article>
 
         <!-- Project 3 -->
-        <div class="project-card">
+        <article class="project-card">
           <p class="project-tag">Time Series · 2023</p>
-          <h2 class="project-title">Energy Demand Forecast</h2>
+          <h2 class="project-title">Project Title Three</h2>
           <p class="project-desc">
-            Hybrid LSTM + XGBoost model forecasting hourly electricity demand,
-            reducing MAPE by 18% versus the previous baseline.
+            Brief description of your project. Explain the problem you solved,
+            the approach you took, and the key result or metric that shows impact.
           </p>
           <div class="project-footer">
             <div class="stack">
               <span class="pill">Keras</span>
               <span class="pill">Pandas</span>
-              <span class="pill">Plotly</span>
             </div>
-            <a class="project-link" href="https://github.com/yourusername/project-3" target="_blank">github →</a>
+            <div class="project-links">
+              <a href="projects/project-3.md">Read more →</a>
+              <a href="https://github.com/yourusername/project-3" target="_blank">GitHub</a>
+            </div>
           </div>
-        </div>
+        </article>
 
         <!-- Project 4 -->
-        <div class="project-card">
+        <article class="project-card">
           <p class="project-tag">LLM · 2025</p>
-          <h2 class="project-title">RAG Research Assistant</h2>
+          <h2 class="project-title">Project Title Four</h2>
           <p class="project-desc">
-            Retrieval-augmented generation system for academic paper Q&amp;A.
-            Indexes 10k+ arXiv papers with vector search and streaming responses.
+            Brief description of your project. Explain the problem you solved,
+            the approach you took, and the key result or metric that shows impact.
           </p>
           <div class="project-footer">
             <div class="stack">
               <span class="pill">LangChain</span>
               <span class="pill">Pinecone</span>
-              <span class="pill">Next.js</span>
             </div>
-            <a class="project-link" href="https://github.com/yourusername/project-4" target="_blank">github →</a>
+            <div class="project-links">
+              <a href="projects/project-4.md">Read more →</a>
+              <a href="https://github.com/yourusername/project-4" target="_blank">GitHub</a>
+            </div>
           </div>
-        </div>
+        </article>
 
       </div>
     </section>
 
-    <!-- About -->
+    <!-- ════════════════════════════════════════
+         THESIS
+         ————————————————————————————————————————
+         Option A — link to a PDF:   href="assets/thesis.pdf"
+         Option B — link to markdown: href="thesis.md"
+           (create thesis.md in your repo root)
+         ════════════════════════════════════════ -->
+    <section id="thesis">
+      <p class="section-label">Thesis</p>
+      <div class="thesis-card">
+        <div>
+          <h3>Your Thesis Title Goes Here</h3>
+          <p>
+            One or two sentences describing your thesis — the research problem,
+            methodology, and key findings. Keep it readable for a general audience.
+          </p>
+        </div>
+        <a class="btn-pill" href="thesis.md" target="_blank">Read thesis →</a>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════
+         BLOG
+         ————————————————————————————————————————
+         1. Create a blog/ folder in your repo
+         2. Add markdown files: blog/post-1.md, blog/post-2.md …
+         3. GitHub Pages renders them automatically
+         4. Update the href, title, summary, and date below
+         ════════════════════════════════════════ -->
+    <section id="blog">
+      <p class="section-label">Blog</p>
+      <div class="blog-list">
+
+        <a class="blog-item" href="blog/post-1.md">
+          <div class="blog-left">
+            <span class="blog-title">Blog Post Title One</span>
+            <span class="blog-summary">One sentence teaser about what this post covers.</span>
+          </div>
+          <span class="blog-meta">Month Year</span>
+        </a>
+
+        <a class="blog-item" href="blog/post-2.md">
+          <div class="blog-left">
+            <span class="blog-title">Blog Post Title Two</span>
+            <span class="blog-summary">One sentence teaser about what this post covers.</span>
+          </div>
+          <span class="blog-meta">Month Year</span>
+        </a>
+
+        <a class="blog-item" href="blog/post-3.md">
+          <div class="blog-left">
+            <span class="blog-title">Blog Post Title Three</span>
+            <span class="blog-summary">One sentence teaser about what this post covers.</span>
+          </div>
+          <span class="blog-meta">Month Year</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── About ── -->
     <section id="about">
       <p class="about-heading">About<br>me</p>
-      <div class="about-text">
+      <div class="about-body">
+        <!-- Replace with your own text -->
         <p>
-          I'm a data scientist with a background in applied statistics and a passion for machine
-          learning research. I enjoy working on problems that sit at the edge of what models can
-          reliably do — explainability, robustness, and real-world deployment.
+          I'm a data scientist with a background in applied statistics and a passion for
+          machine learning research. I enjoy working on problems that sit at the edge of
+          what models can reliably do — explainability, robustness, and real-world deployment.
         </p>
         <p>
           When I'm not training models, I write about ML concepts, contribute to open-source
@@ -437,11 +655,11 @@
       </div>
     </section>
 
-    <!-- Contact -->
+    <!-- ── Contact ── -->
     <section id="contact">
       <p class="section-label">Get in touch</p>
-      <div class="contact-inner">
-        <p class="contact-cta">Let's work <em>together</em></p>
+      <div class="contact-box">
+        <h3>Let's work <em>together</em></h3>
         <div class="contact-links">
           <a href="mailto:you@email.com">Email</a>
           <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
@@ -450,16 +668,18 @@
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer>
-      <span class="footer-copy">© 2025 Your Name</span>
-      <div class="footer-links">
-        <a href="https://github.com/yourusername" target="_blank">GitHub</a>
-        <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
-        <a href="mailto:you@email.com">Email</a>
-      </div>
-    </footer>
+  </main>
 
-  </div>
+  <!-- ── Footer ── -->
+  <footer>
+    <span class="footer-copy">© 2025 Your Name</span>
+    <div class="footer-links">
+      <a href="https://github.com/yourusername" target="_blank">GitHub</a>
+      <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
+      <a href="mailto:you@email.com">Email</a>
+    </div>
+  </footer>
+
+</div>
 </body>
 </html>
