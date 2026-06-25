@@ -438,7 +438,7 @@
 
   <!-- ── Nav ── -->
   <nav>
-    <span class="nav-logo">Your Name</span>
+    <span class="nav-logo">Ria Arora</span>
     <ul class="nav-links">
       <li><a href="#projects">Projects</a></li>
       <li><a href="#blog">Blog</a></li>
@@ -456,26 +456,27 @@
         2. Delete the <div class="avatar-placeholder"> block
         3. Uncomment the <img> tag below:
 
-        <img src="assets/avatar.jpg" alt="Your Name" class="avatar" />
-      -->
-      <div class="avatar-placeholder">Your photo<br>assets/avatar.jpg</div>
+        <!-- <img src="assets/avatar.jpg" alt="Your Name" class="avatar" /> -->
+      <!-- <div class="avatar-placeholder">Your photo<br>assets/avatar.jpg</div> -->
+        <img src="assets/avatar.jpg" alt="Ria Arora" class="avatar" />
     </div>
 
     <div class="hero-text">
       <!-- Replace "Data Scientist" and the subtitle with your actual title -->
-      <h1>Data Scientist<br><em>&amp; ML Engineer</em></h1>
+      <h1>Robotics & AI <br><em> Research Engineer</em></h1>
 
       <!-- Replace with your own 2–3 sentence bio -->
       <p class="hero-bio">
-        Building intelligent systems at the intersection of data, statistics, and machine learning.
-        Passionate about explainable AI, NLP, and turning messy datasets into clear decisions.
+        I'm a research engineer specializing in robotics and AI, with a focus on developing
+        algorithms that enable robots to learn from their environment and adapt to new tasks.
+        My work bridges the gap between cutting-edge research and real-world applications.
       </p>
 
       <!-- Replace yourusername and you@email.com -->
       <div class="hero-links">
-        <a class="btn-pill" href="https://github.com/yourusername" target="_blank">GitHub</a>
-        <a class="btn-pill" href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
-        <a class="btn-pill" href="mailto:you@email.com">Email</a>
+        <a class="btn-pill" href="https://github.com/korra141" target="_blank">GitHub</a>
+        <a class="btn-pill" href="https://linkedin.com/in/riaarora333" target="_blank">LinkedIn</a>
+        <a class="btn-pill" href="mailto:riaarora333@gmail.com">Email</a>
       </div>
     </div>
   </header>
@@ -491,17 +492,32 @@
          3. The "Read more" link below points to that file
          4. GitHub Pages converts .md → .html automatically
          ════════════════════════════════════════ -->
+    <!-- ════════════════════════════════════════
+         THESIS
+         ════════════════════════════════════════ -->
+    <section id="thesis">
+      <p class="section-label">Thesis</p>
+      <div class="thesis-card">
+        <div>
+          <h3>Differentiable Bayesian Filtering with Harmonic Exponential Distributions</h3>
+          <p>
+            Robots navigating without GPS rely on noisy, context-dependent sensors whose measurement distributions classical filters can't accurately model. This work introduces Diff-HEF, an end-to-end differentiable filter that learns calibrated observation likelihoods as non-parametric Harmonic Exponential Distributions on Lie groups. Trained via backpropagation through time, it produces better-calibrated pose estimates than EKF, Histogram, and particle filter baselines.
+          </p>
+        </div>
+        <a class="btn-pill" href="/thesis/thesis_main">Read thesis →</a>
+      </div>
+    </section>
+
     <section id="projects">
-      <p class="section-label">Selected Projects</p>
+      <p class="section-label">Recent Projects</p>
       <div class="projects-grid">
 
         <!-- Project 1 -->
         <article class="project-card">
-          <p class="project-tag">NLP · 2024</p><!-- change category & year -->
-          <h2 class="project-title">Project Title One</h2>
+          <p class="project-tag">LLM · 2026</p><!-- change category & year -->
+          <h2 class="project-title">LLM's understanding of Numerical Reasoning</h2>
           <p class="project-desc">
-            Brief description of your project. Explain the problem you solved,
-            the approach you took, and the key result or metric that shows impact.
+            How well do LLMs actually understand numbers? This project probes that question through financial forecasting on major stocks, benchmarking FinGPT against ChatGPT, LLaMA 2 &amp; 3, and FinBERT. Key finding: tokenization strategy and input phrasing have an outsized effect on numeric reasoning — more than model scale alone.
           </p>
           <div class="project-footer">
             <div class="stack">
@@ -509,19 +525,18 @@
               <span class="pill">HuggingFace</span>
             </div>
             <div class="project-links">
-              <a href="projects/project-1.md">Read more →</a>
-              <a href="https://github.com/yourusername/project-1" target="_blank">GitHub</a>
+              <a href="https://github.com/korra141/korra141.github.io/blob/main/projects/projects_project-1.md" target="_blank">Read more →</a>
+              <a href="https://github.com/korra141/project-1" target="_blank">GitHub</a>
             </div>
           </div>
         </article>
 
         <!-- Project 2 -->
         <article class="project-card">
-          <p class="project-tag">Computer Vision · 2024</p>
-          <h2 class="project-title">Project Title Two</h2>
+          <p class="project-tag">SLAM · 2026</p>
+          <h2 class="project-title">SLAM in degenerate environments</h2>
           <p class="project-desc">
-            Brief description of your project. Explain the problem you solved,
-            the approach you took, and the key result or metric that shows impact.
+            Geometric SLAM degenerates in featureless or repetitive environments — long corridors, symmetric rooms — where point cloud registration loses constraint and drift accumulates unboundedly without loop closure. Built on SuperOdom, this project evaluates classical sensor fusion (LiDAR + IMU + wheel odometry) on real long-corridor robot trajectories to quantify how far multi-modal input alone can push drift bounds before a learned or topological component becomes necessary.
           </p>
           <div class="project-footer">
             <div class="stack">
@@ -529,19 +544,18 @@
               <span class="pill">OpenCV</span>
             </div>
             <div class="project-links">
-              <a href="projects/project-2.md">Read more →</a>
-              <a href="https://github.com/yourusername/project-2" target="_blank">GitHub</a>
+              <a href="https://github.com/korra141/korra141.github.io/blob/main/projects/projects_project-2.md" target="_blank">Read more →</a>
+              <a href="https://github.com/korra141/project-2" target="_blank">GitHub</a>
             </div>
           </div>
         </article>
 
         <!-- Project 3 -->
         <article class="project-card">
-          <p class="project-tag">Time Series · 2023</p>
-          <h2 class="project-title">Project Title Three</h2>
+          <p class="project-tag">VLA · 2026</p>
+          <h2 class="project-title">Cross-Embodiment Transfer for 5-DoF Manipulation</h2>
           <p class="project-desc">
-            Brief description of your project. Explain the problem you solved,
-            the approach you took, and the key result or metric that shows impact.
+            Most VLA and manipulation policies are trained and fine-tuned for 6-DoF arms. This project stress-tests cross-embodiment transfer by benchmarking those policies on a 5-joint xArm — a configuration they were never optimised for — across both simulation and real-world tasks. The goal is to characterise the performance gap and establish how much target-domain data is needed to close it via fine-tuning.
           </p>
           <div class="project-footer">
             <div class="stack">
@@ -549,53 +563,33 @@
               <span class="pill">Pandas</span>
             </div>
             <div class="project-links">
-              <a href="projects/project-3.md">Read more →</a>
-              <a href="https://github.com/yourusername/project-3" target="_blank">GitHub</a>
+              <a href="https://github.com/korra141/korra141.github.io/blob/main/projects/projects_project-3.md" target="_blank">Read more →</a>
+              <a href="https://github.com/korra141/project-3" target="_blank">GitHub</a>
             </div>
           </div>
         </article>
 
-        <!-- Project 4 -->
-        <article class="project-card">
-          <p class="project-tag">LLM · 2025</p>
-          <h2 class="project-title">Project Title Four</h2>
+         <article class="project-card">
+          <p class="project-tag">RL · 2026</p>
+          <h2 class="project-title">Flappy Bird — Learning to Play with RL</h2>
           <p class="project-desc">
-            Brief description of your project. Explain the problem you solved,
-            the approach you took, and the key result or metric that shows impact.
+            A hands-on implementation of core RL algorithms — DQN, PPO, and policy gradient — applied to Flappy Bird. Built from scratch to understand how agents learn from sparse rewards, how hyperparameters affect convergence, and where each algorithm breaks down. A practical sandbox for getting intuition on RL before applying it to harder problems.
           </p>
           <div class="project-footer">
             <div class="stack">
-              <span class="pill">LangChain</span>
-              <span class="pill">Pinecone</span>
+              <span class="pill">PyTorch</span>
+              <span class="pill">Gym</span>
             </div>
             <div class="project-links">
-              <a href="projects/project-4.md">Read more →</a>
-              <a href="https://github.com/yourusername/project-4" target="_blank">GitHub</a>
+              <a href="https://github.com/korra141/korra141.github.io/blob/main/projects/projects_project-3.md" target="_blank">Read more →</a>
+              <a href="https://github.com/korra141/project-3" target="_blank">GitHub</a>
             </div>
           </div>
         </article>
 
-      </div>
-    </section>
 
-    <!-- ════════════════════════════════════════
-         THESIS
-         ————————————————————————————————————————
-         Option A — link to a PDF:   href="assets/thesis.pdf"
-         Option B — link to markdown: href="thesis.md"
-           (create thesis.md in your repo root)
-         ════════════════════════════════════════ -->
-    <section id="thesis">
-      <p class="section-label">Thesis</p>
-      <div class="thesis-card">
-        <div>
-          <h3>Your Thesis Title Goes Here</h3>
-          <p>
-            One or two sentences describing your thesis — the research problem,
-            methodology, and key findings. Keep it readable for a general audience.
-          </p>
-        </div>
-        <a class="btn-pill" href="thesis.md" target="_blank">Read thesis →</a>
+
+
       </div>
     </section>
 
@@ -611,12 +605,12 @@
       <p class="section-label">Blog</p>
       <div class="blog-list">
 
-        <a class="blog-item" href="blog/post-1.md">
+        <a class="blog-item" href="/blog/post-1">
           <div class="blog-left">
-            <span class="blog-title">Blog Post Title One</span>
-            <span class="blog-summary">One sentence teaser about what this post covers.</span>
+            <span class="blog-title">Rigid Body Motions</span>
+            <span class="blog-summary">The math behind how robots move in 3D space — SO(3), SE(3), and why Lie groups are the right framework.</span>
           </div>
-          <span class="blog-meta">Month Year</span>
+          <span class="blog-meta">May 2026</span>
         </a>
 
         <a class="blog-item" href="blog/post-2.md">

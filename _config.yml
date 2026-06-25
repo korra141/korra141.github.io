@@ -1,0 +1,10 @@
+theme: jekyll-theme-cayman
+title: Ria Arora
+description: Robotics & AI Research Engineer
+
+permalink: /blog/:title/
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
