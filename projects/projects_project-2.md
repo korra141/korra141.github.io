@@ -1,14 +1,14 @@
 ---
 layout: default
-title: "Project Title Two"
+title: "Degenerate SLAM with SuperOdom"
 ---
 
-# Project Title Two
+# Degenerate SLAM with SuperOdom
 
-**Repo:** [github.com/korra141/project-2](https://github.com/korra141/project-2)
-**Based on:** *(link to original repo if fork)*
-**Stack:** TensorFlow, OpenCV
-**Status:** Early stage
+**Repo:** *(link to repo)* \
+**Based on:** *(link to original repo if fork)* \
+**Stack:** C++ · ROS · LiDAR · IMU · Classical Sensor Fusion \
+**Status:** In progress
 
 ---
 

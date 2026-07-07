@@ -1,14 +1,13 @@
 ---
 layout: default
-title: "Project Title Four"
+title: "Cross-Embodiment Transfer for xArm"
 ---
 
-# Project Title Four
+# Cross-Embodiment Transfer for xArm
 
-**Repo:** [github.com/korra141/project-4](https://github.com/korra141/project-4)
-**Based on:** *(link to original repo if fork)*
-**Stack:** LangChain, Pinecone
-**Status:** Early stage
+**Repo:** *(link to repo)* \
+**Stack:** PyTorch · ROS · VLA · LoRA · xArm \
+**Status:** In progress
 
 ---
 

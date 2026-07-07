@@ -1,14 +1,13 @@
 ---
 layout: default
-title: "Project Title Three"
+title: "Flappy Bird with Reinforcement Learning"
 ---
 
-# Project Title Three
+# Flappy Bird with Reinforcement Learning
 
-**Repo:** [github.com/korra141/project-3](https://github.com/korra141/project-3)
-**Based on:** *(link to original repo if fork)*
-**Stack:** Keras, Pandas
-**Status:** Early stage
+**Repo:** *(link to repo)* \
+**Stack:** PyTorch · OpenAI Gym · DQN · PPO · Policy Gradient \
+**Status:** In progress
 
 ---
 
