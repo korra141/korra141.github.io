@@ -3,15 +3,36 @@ remote_theme: Huxpro/huxpro.github.io
 plugins:
   - jekyll-remote-theme
 
+# Site
 title: Ria Arora
 SEOTitle: Ria Arora | Robotics & AI Research Engineer
 description: Robotics & AI Research Engineer · UdeM / MILA
+keyword: "robotics, AI, research, MILA, localization, LLM"
+url: "https://korra141.github.io"
+
+# Header
 header-img: ""
+
+# Sidebar
+sidebar-about-description: "Robotics & AI Research Engineer at UdeM / MILA. Working on differentiable filters, LLM evaluation, and embodied AI."
+sidebar-avatar: ""
+
+# Contact
 email: riaarora333@gmail.com
+
+# Social links (leave blank to hide)
+github_username: korra141
+
+# Nav
+navbar-list:
+  - { title: "Projects", href: "/#projects" }
+  - { title: "Thesis", href: "/thesis/thesis_main/" }
+  - { title: "Blog", href: "/blog/" }
 
 permalink: /blog/:title/
 
 markdown: kramdown
+highlighter: rouge
 kramdown:
   input: GFM
   hard_wrap: false
