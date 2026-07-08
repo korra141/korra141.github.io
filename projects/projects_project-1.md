@@ -16,6 +16,12 @@ title: "Probing FinGPT's Forecasting Module"
 
 ---
 
+> FinGPT released a forecasting module. Only its sentiment results have been published. We ran the forecaster against classical and neural baselines on Dow 30 over a 2-week horizon, and probed what information it actually uses with ablations that mask numerical values versus financial vocabulary, before attempting to improve it with Chain-of-Thought fine-tuning.
+>
+> **Headline finding.** Fine-tuning extracts genuine directional signal — FinGPT (LLaMA-3) leads all baselines on accuracy — but magnitude prediction sits at the level of a driftless random walk. After fine-tuning, the model builds joint representations of numbers and financial vocabulary, though this does not imply emergent numerical reasoning: whether it has learnt that specific ratios are more important, or that decimals carry magnitude, cannot be deduced from these results. CoT fine-tuning produced a marginal directional improvement at the cost of magnitude accuracy.
+
+---
+
 ## The Gap
 
 FinGPT is an open-source LLM framework for financial NLP. It ships a forecasting module that takes recent price history, news headlines, and company fundamentals as input and outputs a directional prediction (up/down), a magnitude estimate (% change), and a natural-language rationale. The original paper published results almost exclusively for sentiment analysis. **The forecasting module's actual predictive performance was never benchmarked.**
@@ -33,6 +39,16 @@ Or is it effectively a sentiment classifier dressed in forecasting clothing?
 When it produces a forecast, how much does it rely on numerical content (prices, ratios, EPS) versus qualitative financial language ("beat", "missed", "surged")?
 
 Both are evaluated empirically on the Dow 30 dataset over a 2-week forecasting horizon, with models uploaded to HuggingFace.
+
+---
+
+## Why This Is Hard
+
+Two separate difficulties compound each other.
+
+**The task is structurally hard.** Weekly price movement is noisy, non-stationary, and regime-dependent. Even well-tuned classical models struggle to predict direction at multi-week horizons much above chance. The two-price-per-week data format here gives time-series models almost no sequential structure to exploit — any forecaster is working from thin signal before it even opens the news.
+
+**LLMs are structurally weak on numbers.** Tokenizers fragment numerical values into sub-word pieces. A price like `163.56` does not arrive as a quantity — it arrives as a sequence of digit-tokens whose meaning the attention mechanism must reassemble. Whether that reassembly happens reliably in long, number-dense prompts is exactly what the ablation below is designed to probe.
 
 ---
 
@@ -63,6 +79,8 @@ The train set covers a **bullish market window**; the test set covers a **bearis
 
 ## Results
 
+A common failure mode in LLM benchmarks is comparing only against other LLMs — which can show one model beats another while saying nothing about whether any of them beat the obvious non-LLM approach. For price prediction, that approach is ARIMA: no text, no semantics, just the price sequence. ARIMA is included not because it is expected to win, but because the comparison is dishonest without it. Its performance sets the floor for what structured numerical signal alone can achieve.
+
 | Model | Dir. Acc. ↑ | MSE ↓ | ROUGE ↑ |
 |---|---|---|---|
 | **FinGPT (LLaMA-3)** | **0.6122** | 7.2653 | 0.2467 |
@@ -82,7 +100,7 @@ The train set covers a **bullish market window**; the test set covers a **bearis
 
 - The ~20 percentage point accuracy gap between FinGPT (LLaMA-3) and FinGPT (LLaMA-2) is striking given that the fine-tuning recipe is nearly identical. The most concrete structural difference is the tokenizer: LLaMA-3's 128K vocabulary represents many numbers as single tokens, while LLaMA-2's 32K vocabulary breaks them into digit-level fragments that share no numerical relationship. Whether this actually explains the gap is tested in the masking ablation below.
 
-- FinBERT scores below the class distribution baseline (0.41 vs 0.50). The class distribution baseline predicts the majority class — in this case, *down*, which occurs 54.3% of the time in the test set. FinBERT was built to classify sentiment from earnings reports and financial news; it was not designed for this prompt format or output task. This is a task mismatch, not a reflection of FinBERT's general capability.
+- FinBERT scores below the class distribution baseline (0.41 vs 0.50). FinBERT is encoder-only with a classification head — bidirectional attention, trained to label sentiment in earnings reports and financial news. The LLaMA models are decoder-only, generating a directional prediction and rationale in a single autoregressive pass. These are architecturally different tasks using the same prompt format. FinBERT's poor performance reflects that mismatch, not a general weakness.
 
 - GPT-4 and both base LLaMA models also fall below the class distribution baseline. General language understanding and scale are not sufficient here — without fine-tuning on domain-specific examples, these models have no basis for calibrating their predictions to this data format.
 
@@ -157,6 +175,8 @@ To probe Q2 directly, two masking experiments were run over LLaMA-3 (base) and F
   </figure>
 </div>
 
+The logic: **if the model relies primarily on financial language, masking numbers should cost little — but masking financial terms should hurt significantly.** The reverse pattern would point to numerical content as the primary signal. Symmetric degradation under both conditions would suggest the two modalities are jointly encoded and cannot be separated. Each outcome answers Q2 differently.
+
 ### Base LLaMA-3: Words ≫ Numbers
 
 | Condition | Δ Dir. Acc | Δ MSE |
@@ -220,6 +240,8 @@ mentioned as promising [...]"
 
 The model is narrating the output format it should produce rather than reasoning about the financial content. Chain-of-thought for financial data is intrinsically difficult: there is no single canonical reasoning chain, causality is hard to verify, and post-hoc rationalisation is indistinguishable from genuine inference.
 
+An important caveat: CoT output is not a faithful trace of internal computation — it is what the model produces as text, which can come apart from what it actually attends to. The sample above is behavioral evidence that something went wrong in the generation; it is not a mechanistic claim about what the model computed.
+
 ---
 
 ## Answering the Two Questions
@@ -230,17 +252,28 @@ Partially. FinGPT (LLaMA-3) extracts genuine financial signal — it beats every
 
 **Q2 — What is it using?**
 
-After fine-tuning, both numbers and financial terms are attended to — LoRA on the Dow30 data encoded semantic co-dependence between numerical values and financial vocabulary. The 25% symmetric degradation under masking is the clearest evidence of this. But sophisticated pattern completion over the fine-tuning distribution cannot be ruled out. True numerical *reasoning* would require generalisation to out-of-distribution numeric inputs — which this study cannot confirm.
+After fine-tuning, both numbers and financial terms are attended to — LoRA on the Dow30 data encoded co-dependence between numerical values and financial vocabulary, reflected in the 25% symmetric degradation under masking. The random number substitution experiment adds a stronger data point: replacing numeric values with different ones — while keeping the prompt structure intact — degrades price magnitude prediction, confirming the model is actively reading the numbers rather than merely reacting to a disrupted prompt format.
+
+But reading numbers is not the same as reasoning over them. The evidence is consistent with the model having learnt a distribution over average price changes during training and using numerical tokens as a weak conditioning signal — not computing from specific values. It has not demonstrably learnt which fundamentals or ratios are predictive for a given stock over a 1-week window. The magnitude predictions cluster too close to the training distribution mean for that interpretation to hold.
 
 ---
 
-## What Would Settle These Questions
+## Limitations
 
-- **Multiple market regimes.** A single bullish/bearish split is insufficient to characterise regime sensitivity.
-- **Richer price data.** More price points, volume, and multi-year histories would let classical baselines compete fairly.
-- **Percentile-ranked numerics.** Mapping raw values to bounded [0,100] percentile ranks may mitigate magnitude blindness — relative rank is easier to represent than unbounded absolute values.
-- **Out-of-distribution numeric probing.** Replace specific dollar figures while holding the surrounding text fixed and measure prediction sensitivity — a cleaner test of numerical reasoning than masking.
-- **Calibration.** Being right 61% of the time says nothing about how confident or calibrated the forecasts are. ECE and reliability diagrams would reveal whether confidence tracks accuracy.
+- **Single time window.** Train and test cover one bullish and one bearish period respectively — regime sensitivity is uncharacterised.
+- **Dow 30 only.** Large-cap US equities. Results may not generalise to smaller stocks, other markets, or other asset classes.
+- **Tokenizer not varied.** All experiments use the tokenizers shipped with each model. Whether a tokenizer that treats decimals and financial ratios as single units — rather than fragmenting them into digit-level pieces — would change performance is untested, and is a plausible confound in the LLaMA-2 vs LLaMA-3 accuracy gap.
+- **Masking confounds.** A masked prompt is out-of-distribution for the model. Token-count asymmetry between masking conditions is partially controlled by the random-substitution experiment, but not fully resolved.
+- **CoT trace quality.** Traces were cleaned but not independently verified for genuine financial reasoning.
+
+---
+
+## What Would Strengthen These Findings
+
+- **Multiple market regimes.** Testing across volatile, quiet, and trending periods would establish whether directional accuracy is robust or regime-specific.
+- **Richer price data.** More price points and volume data would let classical baselines compete on equal footing and reveal how much sequential structure matters.
+- **Percentile-ranked numerics.** Replacing absolute values with peer-group percentile ranks would test whether relative representation mitigates the magnitude problem in representation of tokens.
+- **Calibration analysis.** Directional accuracy of 61% says nothing about confidence. ECE and reliability diagrams would reveal whether the model is well-calibrated or confidently wrong in systematic ways.
 
 ---
 
