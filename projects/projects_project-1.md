@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: page
 title: "Probing FinGPT's Forecasting Module"
 ---
 
@@ -139,7 +139,7 @@ FinGPT's output format is verbose — it generates an analysis section, a pros s
 
 <div align="center">
   <figure>
-    <img src="../assets/fingpt/token_ablation.png" alt="Token length ablation" width="1500">
+    <img src="/projects/assets/fingpt/token_ablation.png" alt="Token length ablation" width="1500">
     <figcaption>MSE and directional accuracy vs. token length for FinGPT (LLaMA-3)</figcaption>
   </figure>
 </div>
@@ -166,11 +166,11 @@ To probe Q2 directly, two masking experiments were run over LLaMA-3 (base) and F
 
 <div align="center">
   <figure>
-    <img src="../assets/fingpt/ablation_fingpt.png" alt="Masking ablation — LLaMA-3 base" width="700">
+    <img src="/projects/assets/fingpt/ablation_fingpt.png" alt="Masking ablation — LLaMA-3 base" width="700">
     <figcaption>LLaMA-3 base: masking numbers has almost no effect, masking financial terms degrades accuracy. Words carry the signal.</figcaption>
   </figure>
   <figure>
-    <img src="../assets/fingpt/ablation_fingpt_1.png" alt="Masking ablation — FinGPT" width="700">
+    <img src="/projects/assets/fingpt/ablation_fingpt_1.png" alt="Masking ablation — FinGPT" width="700">
     <figcaption>FinGPT (LLaMA-3): both numbers and financial terms degrade performance symmetrically when masked. Fine-tuning built joint representations across both modalities.</figcaption>
   </figure>
 </div>

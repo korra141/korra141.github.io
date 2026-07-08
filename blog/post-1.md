@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: "Rigid Body Motions"
 date: 2026-05-18
 ---

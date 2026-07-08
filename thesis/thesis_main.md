@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: page
 title: "Differentiable Bayesian Filtering with Harmonic Exponential Distributions"
 ---
 
@@ -14,7 +14,7 @@ title: "Differentiable Bayesian Filtering with Harmonic Exponential Distribution
 
 <div align="center">
   <figure>
-    <img src="assets/perseverance_landing.png" alt="Localisation without GPS" width="380">
+    <img src="/thesis/assets/perseverance_landing.png" alt="Localisation without GPS" width="380">
     <figcaption><em>Mars Perseverance landing ellipse shrunk from 200 km to 7 km axis. Even within 7 km, hazardous terrain remains.</em></figcaption>
   </figure>
 </div>
@@ -94,7 +94,7 @@ Prior differentiable filter work (Differentiable Particle Filter, DPF; Different
 ### Learning the Observation Likelihood
 
 <figure>
-  <img src="assets/hed_density_estimation.png" alt="Non-parametric likelihood via Fourier basis" width="600">
+  <img src="/thesis/assets/hed_density_estimation.png" alt="Non-parametric likelihood via Fourier basis" width="600">
   <figcaption><em>Density estimation and uncertainty modelling with HED, learned using a grid-based representation. The input may be the true pose x, a noisy observation x̃ = x + ε, or a full prior p(x̃). Measurement z is incorporated into the negative log-likelihood of the HED-parameterised conditional to update the model.</em></figcaption>
 </figure>
 

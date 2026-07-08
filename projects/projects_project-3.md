@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: page
 title: "Flappy Bird with Reinforcement Learning"
 ---
 

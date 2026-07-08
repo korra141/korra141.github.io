@@ -1,6 +1,13 @@
-theme: jekyll-theme-cayman
+remote_theme: Huxpro/huxpro.github.io
+
+plugins:
+  - jekyll-remote-theme
+
 title: Ria Arora
-description: Robotics & AI Research Engineer
+SEOTitle: Ria Arora | Robotics & AI Research Engineer
+description: Robotics & AI Research Engineer · UdeM / MILA
+header-img: ""
+email: riaarora333@gmail.com
 
 permalink: /blog/:title/
 
