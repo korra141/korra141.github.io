@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: post
 title: "Differentiable Bayesian Filtering with Harmonic Exponential Distributions"
 ---
 
