@@ -7,6 +7,8 @@ url: "https://korra141.github.io"
 
 github_username: korra141
 
+header_pages: []
+
 permalink: /blog/:title/
 
 markdown: kramdown
