@@ -1,0 +1,199 @@
+---
+---
+
+// ---- palette (mirrors index.html) ----
+$text-color:       #1a1a18 !default;
+$background-color: #faf9f7 !default;
+$brand-color:      #1a1a18 !default;
+$grey-color:       #5a5a56 !default;
+$grey-color-light: #9a9a94 !default;
+$grey-color-dark:  #1a1a18 !default;
+
+// ---- distill-ish type & rhythm ----
+$base-font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !default;
+$base-font-size:   17px !default;
+$base-line-height: 1.75 !default;
+$spacing-unit:     40px !default;
+$content-width:    760px !default;
+
+@import "minima";
+
+// -----------------------------------------------------------------------
+// Distill-style typography & layout
+// -----------------------------------------------------------------------
+
+:root {
+  --bg:             #faf9f7;
+  --surface:        #ffffff;
+  --text-primary:   #1a1a18;
+  --text-secondary: #5a5a56;
+  --text-muted:     #9a9a94;
+  --border:         rgba(26,26,24,0.10);
+  --border-mid:     rgba(26,26,24,0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:             #131312;
+    --surface:        #1e1e1c;
+    --text-primary:   #f0ede8;
+    --text-secondary: #999890;
+    --text-muted:     #5a5a54;
+    --border:         rgba(240,237,232,0.08);
+    --border-mid:     rgba(240,237,232,0.18);
+  }
+
+  body { background: var(--bg); color: var(--text-primary); }
+  a { color: var(--text-primary); }
+  .site-header, .site-footer { border-color: var(--border-mid) !important; }
+  .site-title, .footer-heading { color: var(--text-primary) !important; }
+  .post-meta, .footer-col, .contact-list, p.footer-copy { color: var(--text-secondary) !important; }
+  table, td, th { border-color: var(--border-mid) !important; }
+  code, pre { background: var(--surface) !important; color: var(--text-primary) !important; border-color: var(--border) !important; }
+  blockquote { color: var(--text-secondary) !important; border-color: var(--border-mid) !important; }
+  hr { border-color: var(--border) !important; }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+// scroll progress bar
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--text-primary);
+  z-index: 1000;
+  transition: width 0.1s ease-out;
+}
+
+.site-header {
+  border-top: none;
+  border-bottom: 1px solid var(--border-mid);
+}
+
+.site-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.site-footer {
+  border-top: 1px solid var(--border-mid);
+}
+
+a {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--border-mid);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
+}
+
+a:hover {
+  text-decoration-color: var(--text-primary);
+}
+
+.post-header {
+  margin-bottom: $spacing-unit * 1.2;
+  padding-bottom: $spacing-unit / 2;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.15;
+  @include relative-font-size(2.75);
+}
+
+.post-meta {
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.post-content {
+  max-width: 100%;
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    line-height: 1.25;
+    margin-top: $spacing-unit * 1.3;
+    margin-bottom: $spacing-unit / 2.5;
+  }
+
+  h2 { padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+
+  p, li {
+    color: var(--text-primary);
+  }
+
+  strong { font-weight: 700; }
+
+  blockquote {
+    border-left: 3px solid var(--border-mid);
+    color: var(--text-secondary);
+    font-style: normal;
+    font-family: 'Lato', sans-serif;
+    padding-left: $spacing-unit / 1.5;
+  }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85em;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  pre {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    code { border: none; background: none; }
+  }
+
+  table {
+    font-size: 0.9em;
+    border-collapse: collapse;
+
+    th {
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75em;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border-mid);
+    }
+
+    td, th { border-color: var(--border); }
+  }
+
+  img, video { border-radius: 8px; }
+
+  figcaption {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 0.5em;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: $spacing-unit 0;
+  }
+}
