@@ -30,6 +30,8 @@ $content-width:    760px !default;
   --text-muted:     #6e6e68;
   --border:         rgba(26,26,24,0.10);
   --border-mid:     rgba(26,26,24,0.18);
+  --table-stripe:      rgba(26,26,24,0.045);
+  --table-header-bg:   rgba(26,26,24,0.10);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -41,6 +43,8 @@ $content-width:    760px !default;
     --text-muted:     #8a8a84;
     --border:         rgba(240,237,232,0.08);
     --border-mid:     rgba(240,237,232,0.18);
+    --table-stripe:      rgba(240,237,232,0.06);
+    --table-header-bg:   rgba(240,237,232,0.14);
   }
 
   body { background: var(--bg); color: var(--text-primary); }
@@ -180,6 +184,11 @@ a:hover {
   table {
     font-size: 0.9em;
     border-collapse: collapse;
+    color: var(--text-primary);
+
+    tr:nth-child(even) {
+      background-color: var(--table-stripe);
+    }
 
     th {
       font-family: 'Lato', sans-serif;
@@ -187,7 +196,8 @@ a:hover {
       text-transform: uppercase;
       font-size: 0.75em;
       letter-spacing: 0.05em;
-      color: var(--text-secondary);
+      color: var(--text-primary);
+      background-color: var(--table-header-bg);
       border-bottom: 2px solid var(--border-mid);
     }
 

@@ -296,3 +296,9 @@ The right picture is **not a number line but a helix**. Numbers wind around a ci
 <a id="r3">[3]</a> Wei, J. et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models*. NeurIPS.
 
 <a id="r4">[4]</a> Magister, L. et al. (2022). *Teaching Small Language Models to Reason*. arXiv.
+
+<a id="r5">[5]</a> Singh, A. K. & Strouse, D. (2024). *Tokenization Counts: The Impact of Tokenization on Arithmetic in Frontier LLMs*. [arXiv:2402.14903](https://arxiv.org/abs/2402.14903)
+
+<a id="r6">[6]</a> Kadlčík, M. et al. (2025). *Pre-trained Language Models Learn Remarkably Accurate Representations of Numbers*. [arXiv:2506.08966](https://arxiv.org/abs/2506.08966)
+
+<a id="r7">[7]</a> Kantamneni, S. & Tegmark, M. (2025). *Language Models Use Trigonometry to Do Addition*. [arXiv:2502.00873](https://arxiv.org/abs/2502.00873)
