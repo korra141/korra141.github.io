@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="960" height="460" fill="#ffffff"/>
+
+  <!-- divider -->
+  <line x1="480" y1="20" x2="480" y2="440" stroke="#cccccc" stroke-width="1.5"/>
+
+  <!-- ============ LEFT PANEL: extrinsic / independent ============ -->
+  <text x="240" y="34" text-anchor="middle" font-size="19" font-weight="600" fill="#1a1a18">Extrinsic — independent (S¹ × R²)</text>
+  <text x="240" y="56" text-anchor="middle" font-size="13" fill="#5a5a56">position and heading are two separate readouts</text>
+
+  <!-- position dot on a plain grid -->
+  <g>
+    <rect x="70" y="90" width="160" height="160" fill="none" stroke="#dddddd" stroke-width="1"/>
+    <line x1="70" y1="170" x2="230" y2="170" stroke="#eeeeee" stroke-width="1"/>
+    <line x1="150" y1="90" x2="150" y2="250" stroke="#eeeeee" stroke-width="1"/>
+    <circle cx="185" cy="130" r="6" fill="#1a1a18"/>
+    <text x="150" y="278" text-anchor="middle" font-size="13" fill="#1a1a18">position (x, y)</text>
+  </g>
+
+  <!-- separate compass dial -->
+  <g>
+    <circle cx="360" cy="170" r="60" fill="none" stroke="#dddddd" stroke-width="1.5"/>
+    <line x1="360" y1="170" x2="396" y2="133" stroke="#1a1a18" stroke-width="3"/>
+    <polygon points="396,133 386,138 391,127" fill="#1a1a18"/>
+    <text x="360" y="278" text-anchor="middle" font-size="13" fill="#1a1a18">heading θ</text>
+  </g>
+
+  <text x="240" y="330" text-anchor="middle" font-size="13" fill="#5a5a56">no operation, no order — set either one</text>
+  <text x="240" y="348" text-anchor="middle" font-size="13" fill="#5a5a56">without touching the other</text>
+
+  <!-- ============ RIGHT PANEL: intrinsic / coupled ============ -->
+  <text x="720" y="34" text-anchor="middle" font-size="19" font-weight="600" fill="#1a1a18">Intrinsic — coupled (SE(2))</text>
+  <text x="720" y="56" text-anchor="middle" font-size="13" fill="#5a5a56">robot controls: "turn," then "move forward"</text>
+
+  <!-- axes -->
+  <line x1="560" y1="360" x2="900" y2="360" stroke="#eeeeee" stroke-width="1"/>
+  <line x1="600" y1="120" x2="600" y2="380" stroke="#eeeeee" stroke-width="1"/>
+
+  <!-- origin -->
+  <circle cx="600" cy="320" r="4" fill="#5a5a56"/>
+  <text x="600" y="400" text-anchor="middle" font-size="12" fill="#5a5a56">start, facing east</text>
+
+  <!-- Path A: rotate in place at start (small arc badge), then move north -->
+  <path d="M 618 320 A 18 18 0 0 0 600 302" fill="none" stroke="#3b6fb6" stroke-width="2"/>
+  <polygon points="600,302 596,314 606,308" fill="#3b6fb6"/>
+  <line x1="600" y1="302" x2="600" y2="220" stroke="#3b6fb6" stroke-width="2.5"/>
+  <polygon points="600,205 592,222 600,216 608,222" fill="#3b6fb6"/>
+  <text x="522" y="258" text-anchor="middle" font-size="12.5" fill="#3b6fb6" font-weight="600">rotate,</text>
+  <text x="522" y="274" text-anchor="middle" font-size="12.5" fill="#3b6fb6" font-weight="600">then move</text>
+
+  <!-- Path B: move east first, then rotate in place at end (small arc badge) -->
+  <line x1="600" y1="320" x2="715" y2="320" stroke="#c0662e" stroke-width="2.5"/>
+  <path d="M 733 320 A 18 18 0 0 0 715 302" fill="none" stroke="#c0662e" stroke-width="2"/>
+  <polygon points="715,302 711,314 721,308" fill="#c0662e"/>
+  <text x="715" y="345" text-anchor="middle" font-size="12.5" fill="#c0662e" font-weight="600">move, then rotate</text>
+
+  <!-- End markers, both facing north (same final heading) -->
+  <g transform="translate(600,205)">
+    <polygon points="0,-14 9,10 0,4 -9,10" fill="#3b6fb6"/>
+  </g>
+  <g transform="translate(715,320)">
+    <polygon points="0,-14 9,10 0,4 -9,10" fill="#c0662e"/>
+  </g>
+
+  <text x="720" y="425" text-anchor="middle" font-size="13" fill="#5a5a56">same two moves, different order → different final position</text>
+  <text x="720" y="443" text-anchor="middle" font-size="13" fill="#5a5a56">(both end up facing the same way — only position diverges)</text>
+</svg>
