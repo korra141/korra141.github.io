@@ -14,16 +14,16 @@ title: "Differentiable Bayesian Filtering with Harmonic Exponential Distribution
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/perseverance_landing.png" alt="Localisation without GPS" width="380">
+    <img src="/thesis/assets/perseverance_landing.png" alt="Localisation without GPS" width="320">
     <figcaption><em>Mars Perseverance landing ellipse shrunk from 200 km to 7 km axis. Even within 7 km, hazardous terrain remains.</em></figcaption>
   </figure>
 </div>
 
 ## Abstract
 
-State estimation under non-linear, heteroscedastic noise remains a fundamental challenge in autonomous robotics. Real-world robots operate under two compounding sources of uncertainty: sensor noise and actuator degradation. Exteroceptive sensors are corrupted by the environment — cameras lose signal under poor lighting or partial occlusion, LiDAR returns are unreliable on smooth or specular surfaces, and sonar degrades in turbulent or acoustically complex settings. Proprioceptive actuators introduce a separate class of error — worn wheel encoders accumulate systematic bias, and mechanical wear produces drift that grows unbounded over time. Without explicitly accounting for these noise characteristics, a robot's pose estimate becomes inaccurate and overconfident, propagating errors into downstream tasks such as motion planning and feedback control.
+State estimation under non-linear, heteroscedastic noise remains a fundamental challenge in autonomous robotics. Sensor noise and actuator drift both compound over time, and without explicitly modeling their true — often non-Gaussian — shape, a robot's pose estimate becomes inaccurate and overconfident, propagating errors into downstream tasks like motion planning and control.
 
-Classical filters — EKF, UKF, and particle filters — are all interpretations of the recursive Bayes filter and share a common requirement: a specified observation likelihood `p(z|x)`. In practice this distribution is assumed Gaussian, which either overestimates certainty in the presence of heavy-tailed or multimodal sensor noise, or underestimates it in well-behaved regimes. Neither failure mode is acceptable for safety-critical systems. Learning-based methods have progressively addressed this by fitting aleatoric uncertainty directly from data, allowing the noise model to reflect what sensors actually produce rather than what is analytically convenient.
+Classical filters — EKF, UKF, particle filters — are all interpretations of the recursive Bayes filter, and all require a specified observation likelihood `p(z|x)`, in practice almost always assumed Gaussian. That assumption overestimates certainty under heavy-tailed or multimodal noise and underestimates it in well-behaved regimes — neither acceptable for safety-critical systems. Learning-based methods have progressively addressed this by fitting the noise model directly from data instead of assuming whatever shape is analytically convenient.
 
 This work introduces **Diff-HEF (Differential Harmonic Exponential Filter)**, built over HEF <sup>[[2]](#r2)</sup> — a Bayesian filter that represents probability distributions as Harmonic Exponential Distributions (HED) <sup>[[1]](#r1)</sup> on compact Lie groups. Diff-HEF extends HEF with a differentiable, learned observation likelihood whose parameters are optimized end-to-end from trajectory data via backpropagation through time. Rather than prescribing a noise shape, Diff-HEF learns one that minimizes downstream state estimation error. Experiments on circular state spaces and SE(2) range-bearing simulations show that Diff-HEF produces better-calibrated posteriors than EKF and particle filter baselines, with consistent gains in non-linear heteroscedastic environments where classical assumptions most severely break down.
 
@@ -45,7 +45,7 @@ Robots navigating GPS-denied environments — indoor warehouses, underground min
 
 The difficulty is that these sensors do not produce Gaussian-distributed noise. A depth camera reporting distance to a partially-occluded surface yields a distribution with a sharp mode near the true range and a heavy tail of outlier returns. A LIDAR beam clipping the edge of a door frame produces a bimodal return. Real sensor noise is **heteroscedastic** — its shape and variance depend on the scene geometry, lighting, and dynamic objects present — properties no fixed Gaussian can capture.
 
-Classical and differentiable filters alike — EKF, UKF, particle filters, and their learned variants — either assume Gaussian observation noise or require the noise model to be specified by hand. When the true likelihood is multimodal or heavy-tailed, a misspecified noise model produces posteriors that are overconfident or underconfident regardless of which filter carries them. This work proposes an end-to-end differentiable framework that learns calibrated measurement distributions directly from data, producing more accurate localization estimates in the non-linear, heteroscedastic settings where fixed noise assumptions break down.
+Classical and differentiable filters alike either assume Gaussian observation noise or require it specified by hand, producing over- or under-confident posteriors whenever the true likelihood is multimodal or heavy-tailed. This work proposes an end-to-end differentiable framework that learns calibrated measurement distributions directly from data instead.
 
 ---
 
@@ -74,7 +74,7 @@ The observation likelihood `p(z_t | x_t)` is the term this work targets.
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/hed_hetero_s1.png" alt="HED density estimation on S¹, heteroscedastic case" width="500">
+    <img src="/thesis/assets/hed_hetero_s1.png" alt="HED density estimation on S¹, heteroscedastic case" width="420">
     <figcaption><em>HED-predicted vs. true density on S¹ in a heteroscedastic setting — the predicted distribution (blue) tracks the true density (green) as its shape and spread change with the underlying state.</em></figcaption>
   </figure>
 </div>
@@ -109,7 +109,7 @@ That tradeoff shows up directly in the results below. On S¹, Diff-PF's ATE (0.0
 ### Learning the Observation Likelihood
 
 <figure>
-  <img src="/thesis/assets/hed_density_estimation.png" alt="Non-parametric likelihood via Fourier basis" width="600">
+  <img src="/thesis/assets/hed_density_estimation.png" alt="Non-parametric likelihood via Fourier basis" width="500">
   <figcaption><em>Density estimation and uncertainty modelling with HED, learned using a grid-based representation. The input may be the true pose x, a noisy observation x̃ = x + ε, or a full prior p(x̃). Measurement z is incorporated into the negative log-likelihood of the HED-parameterised conditional to update the model.</em></figcaption>
 </figure>
 
@@ -146,7 +146,7 @@ The λ_s coefficient controls the bias-variance tradeoff: higher λ_s encourages
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/local_vs_whole_grid.png" alt="Local grid vs. whole grid on S¹" width="700">
+    <img src="/thesis/assets/local_vs_whole_grid.png" alt="Local grid vs. whole grid on S¹" width="580">
     <figcaption><em>Predicted vs. true distribution on S¹ using a local grid centered on the belief mode (left) vs. a grid spanning the whole state space (right). The whole-grid predicted distribution spreads spurious mass toward the far side of the circle, away from the pose and measurement; the local grid stays concentrated near the true mode.</em></figcaption>
   </figure>
 </div>
@@ -159,7 +159,7 @@ The local grid strategy addresses this by maintaining a small grid **centered on
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/e2e_hef.png" alt="End-to-end Diff-HEF training loop" width="800">
+    <img src="/thesis/assets/e2e_hef.png" alt="End-to-end Diff-HEF training loop" width="650">
     <figcaption><em>The end-to-end loop: sensor readings z and the current belief p(x̃) feed the likelihood network f_θ, which outputs a discretized likelihood grid p_θ(z|x). This combines with the prior via the Bayesian update to produce the posterior p(x_k | x̃_0, v_{1:k}, z_{0:k-1}), and the smoothness-regularized loss L_total backpropagates through the whole loop to update θ.</em></figcaption>
   </figure>
 </div>
@@ -193,8 +193,8 @@ The Beta distribution on S¹ tests the middle ground directly: a family of targe
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/beta_gp_s1.png" alt="Gaussian density modelling of Beta distribution on S¹, five configurations" width="900">
-    <img src="/thesis/assets/beta_s1_hed.png" alt="HED density modelling of Beta distribution on S¹, five configurations" width="900">
+    <img src="/thesis/assets/beta_gp_s1.png" alt="Gaussian density modelling of Beta distribution on S¹, five configurations" width="720">
+    <img src="/thesis/assets/beta_s1_hed.png" alt="HED density modelling of Beta distribution on S¹, five configurations" width="720">
     <figcaption><em>Density estimation on S¹ for a Beta distribution, five configurations sweeping from Gaussian-like (left) to progressively more skewed and asymmetrical (right). Top row: Gaussian model. Bottom row: HED. HED tracks the true distribution closely across all five configurations; the Gaussian model's fit visibly degrades as the target skews further from symmetric.</em></figcaption>
   </figure>
 </div>
@@ -218,7 +218,7 @@ HED wins on all three metrics, but the gap is narrowest on KL divergence and NLL
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/disc_tracking_input.png" alt="Sample input frame from the disc tracking dataset" width="400">
+    <img src="/thesis/assets/disc_tracking_input.png" alt="Sample input frame from the disc tracking dataset" width="340">
     <figcaption><em>Sample input frame: the target red disc among randomly colored, randomly sized distractor discs.</em></figcaption>
   </figure>
 </div>
@@ -276,7 +276,7 @@ A planar robot pose (x, y, θ) could, in principle, be treated as three independ
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/intrinsic_vs_extrinsic.svg" alt="Extrinsic (independent) vs. intrinsic (coupled) framing of rotation and translation" width="800">
+    <img src="/thesis/assets/intrinsic_vs_extrinsic.svg" alt="Extrinsic (independent) vs. intrinsic (coupled) framing of rotation and translation" width="650">
     <figcaption><em>Left: if position and heading are just two independent readouts (extrinsic framing), there's no order to speak of — this is S¹ × R². Right: robot controls are issued in the body frame, so rotating changes what "forward" means for the next move (intrinsic framing) — the same two moves in a different order land at a different position. This is SE(2).</em></figcaption>
   </figure>
 </div>
@@ -289,7 +289,7 @@ The full filter is evaluated on a simulated planar robot navigating an environme
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/se2_main002.png" alt="Belief update pipeline and mean estimate comparison on SE(2)" width="800">
+    <img src="/thesis/assets/se2_main002.png" alt="Belief update pipeline and mean estimate comparison on SE(2)" width="650">
     <figcaption><em>The belief update pipeline at a single timestep: predicted belief, measurement likelihood (a ring, consistent with range-only observation of a beacon), and posterior belief after fusing the two. Right: mean position estimate at that step for HEF, EKF, PF, and HistF against ground truth and the beacon layout — EKF's linearization pulls its estimate furthest from GT, while HEF, PF, and HistF cluster closer together.</em></figcaption>
   </figure>
 </div>
@@ -298,7 +298,7 @@ The ring shape in the figure above is not an artifact — it is the actual measu
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/se2_filter_comparison.png" alt="Posterior shape comparison across filters on SE(2)" width="700">
+    <img src="/thesis/assets/se2_filter_comparison.png" alt="Posterior shape comparison across filters on SE(2)" width="580">
     <figcaption><em>Posterior belief shape at the same timestep, by filter. HEF and HistF represent the posterior as a density over the grid and recover a mode close to ground truth; EKF's Gaussian ellipse is elongated along the range direction and offset from GT; PF's particles cluster tightly but slightly short of GT. Only HEF and HistF give a genuine density rather than a point estimate with a parametric or sample-based spread.</em></figcaption>
   </figure>
 </div>
@@ -317,7 +317,7 @@ The ring shape in the figure above is not an artifact — it is the actual measu
 
 *Comparison of differentiable and analytical filters on SE(2) range data, averaged over 30 trajectories. Analytical filters estimate the measurement noise at 0.0005, against a true noise of 0.0001.*
 
-The overconfidence problem is visible directly in NLP here: EKF's fixed, overestimated measurement covariance produces an NLP of 19,517 — the posterior assigns near-zero probability to the true state on average, a far more severe failure than its ATE alone would suggest. Every differentiable filter avoids this by learning the measurement noise from data rather than carrying a fixed misestimate, and Diff-HEF is the only method with a comfortably negative NLP (-7.32), reflecting a posterior that is both accurate and appropriately confident rather than merely accurate. The ATE gap between Diff-HEF and the next best differentiable filter (Diff PF, 0.0134) is smaller than the NLP gap (-0.37 vs. -7.32) — consistent with the S¹ result, and consistent with the bimodal-collapse mechanism above: Diff-PF's mean position is often close enough to ground truth to keep ATE competitive, since collapsing onto either symmetric mode still lands near one plausible answer, but the posterior it reports has already discarded whichever mode it didn't collapse onto. NLP penalizes exactly this — a posterior that assigns near-zero density to the true state whenever it happens to sit under the mode that was thinned out — while ATE, being a point comparison, cannot see it at all.
+The overconfidence problem is visible directly in NLP here: EKF's fixed, overestimated measurement covariance produces an NLP of 19,517 — the posterior assigns near-zero probability to the true state on average, a far more severe failure than ATE alone would suggest. Every differentiable filter avoids this by learning the measurement noise from data, and Diff-HEF is the only one with a comfortably negative NLP (-7.32) — accurate and appropriately confident, not just accurate. The ATE gap to the next-best differentiable filter (Diff PF, 0.0134) is far smaller than the NLP gap (-0.37 vs. -7.32), consistent with the bimodal-collapse mechanism above: Diff-PF's mean often lands near ground truth even after collapsing onto one symmetric mode, but the discarded mode is exactly what NLP — unlike ATE, a point-only comparison — penalizes.
 
 ## Ablation
 
@@ -359,7 +359,7 @@ The bandlimit sets the number of harmonics available to the HED, and its effect 
 
 A terminology note first: on S¹, "Gaussian" is not actually a well-defined distribution — the circle is compact and periodic, while the Gaussian density is defined on the real line. The natural circular analogue used throughout the density estimation results above is the **von Mises distribution**, parameterized by a mean direction and concentration in place of a Gaussian's mean and variance. Wherever earlier sections say "Gaussian" on S¹, von Mises is the distribution actually being fit — the two are treated as interchangeable shorthand here because von Mises converges to a Gaussian in the high-concentration limit, but they are not the same object.
 
-Von Mises/Gaussian NLL carries a well-documented failure mode during training: because the loss trades off a quadratic mean-fit term against a log-variance (or log-concentration) term, the optimizer has a cheap way to lower NLL without actually fitting the mean — inflate the variance instead. This is not a hypothetical risk; it is the exact pathology that motivated beta-NLL <sup>[[9]](#r9)</sup> as a corrective reweighting of the standard NLL loss. Without a stable mean initialization (a "warm-up"), training can converge to an over-dispersed, semantically uninformative solution that looks fine on the loss curve while representing nothing about the true data. HED is not immune to poor initialization either — being non-parametric, it relies on the initial density shape to anchor the optimization, and without a mean estimate to provide that anchor, early gradients carry little directional signal, leading to slow convergence or collapse to an uninformative distribution.
+Von Mises/Gaussian NLL carries a well-documented failure mode: because the loss trades a quadratic mean-fit term against a log-variance term, the optimizer can cheaply lower NLL by inflating variance instead of actually fitting the mean — the exact pathology that motivated beta-NLL <sup>[[9]](#r9)</sup> as a corrective reweighting. Without a stable mean "warm-up," training converges to an over-dispersed, semantically uninformative solution that looks fine on the loss curve but represents nothing about the true data. HED isn't immune either — being non-parametric, it relies on the initial density shape to anchor optimization, and without a mean estimate for that anchor, early gradients carry little signal, causing slow convergence or collapse to an uninformative distribution.
 
 The difference between the two shows up once the target grows more complex. In higher-dimensional or multimodal settings, von Mises/Gaussian mixtures give the variance-inflation shortcut to each component independently, and the components' interactions compound it — correcting one mode's mean can perturb another's variance estimate, so training a mixture is markedly less stable than training a single unimodal component, even with careful initialization. HED's harmonic coefficients jointly shape the whole density rather than decomposing it into separate per-mode means and variances, so there is no isolated variance term for the optimizer to inflate while leaving the rest of the fit untouched. Its failure mode under poor initialization is therefore different in kind, not just degree: instead of blowing up into a confidently-wrong, over-dispersed solution, it starves for gradient signal and converges toward a flat, honestly-uncertain density. Given a reasonable initialization, HED's loss landscape does not reward the optimizer for giving up on the mean the way von Mises/Gaussian NLL does — and that gap is widest exactly where von Mises/Gaussian training is most fragile: multimodal, higher-dimensional targets.
 
@@ -374,8 +374,6 @@ The difference between the two shows up once the target grows more complex. In h
 - **Manifold generality**: the current implementation is validated on S¹ and SE(2). Extension to higher-dimensional Lie groups (SO(3), SE(3)) requires adapting the harmonic basis and grid construction, which is left to future work.
 - **Training data dependence**: the likelihood network learns the noise characteristics of the training distribution. Domain shifts — a new sensor, a new environment — require retraining or fine-tuning.
 - **Baseline distribution families are still mostly Gaussian**: HED is shown to out-calibrate Gaussian-parameterized methods (NLL, beta-NLL <sup>[[9]](#r9)</sup>, f-Cal <sup>[[3]](#r3)</sup>) under higher variance, out-fit a Gaussian model on a non-Gaussian target (Beta), out-fit a fixed-mode-count MDN <sup>[[8]](#r8)</sup> on a multimodal target, and out-perform non-parametric filters (PF, HistF) on both S¹ and SE(2). Missing is the more flexible end of density estimation — normalizing flows and diffusion models — both capable in principle of representing arbitrary distributions despite a Gaussian base or noise process. Neither is a drop-in baseline: standard flows and diffusion are built for Euclidean data, and manifold-native flows exist for the circle and torus <sup>[[11]](#r11)</sup> but not yet for SE(2)'s specific rotation-translation coupling, while exact diffusion likelihoods require solving a probability-flow ODE per query — a nontrivial cost inside a filtering loop against HED's closed-form normalizer. Whether HED's edge would hold against these families, and which is best suited to SE(2) specifically, remains open.
-
-
 
 ---
 
