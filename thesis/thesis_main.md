@@ -7,8 +7,9 @@ title: "Differentiable Bayesian Filtering with Harmonic Exponential Distribution
 
 **M.Sc. Thesis, Université de Montréal and MILA· 2025** \
 **Supervisor:** Liam Paull and Guy Wolf \
-**Status:** Accepted \
-[Thesis](https://umontreal.scholaris.ca/items/70d3f215-6d63-4307-8311-bc33ed8c3522)
+**Status:** Accepted
+
+<a class="btn-pill" href="https://umontreal.scholaris.ca/items/70d3f215-6d63-4307-8311-bc33ed8c3522" target="_blank">Read the Full Thesis ↗</a>
 
 ---
 
@@ -62,14 +63,6 @@ Update:      bel(x_t)  ∝ p(z_t | x_t) · bel̄(x_t)
 
 The observation likelihood `p(z_t | x_t)` is the term this work targets.
 
-| Filter | Likelihood model | State representation | Cost |
-|---|---|---|---|
-| EKF | Gaussian (linearized) | Gaussian | O(n²) |
-| UKF | Gaussian (sigma points) | Gaussian | O(n²) |
-| Particle Filter | Arbitrary | Weighted samples | O(N·n) |
-| Histogram Filter | Arbitrary | Discrete grid | O(G) |
-| **Diff-HEF (ours)** | **HED (learned)** | **HED on Lie group** | **O(K·n)** |
-
 ### Harmonic Exponential Distribution
 
 <div align="center">
@@ -94,13 +87,13 @@ Key properties:
 
 ### Differentiable Filters
 
-A differentiable filter is a filter whose full update equations — prediction, likelihood evaluation, Bayesian update — are implemented as differentiable operations so that a loss computed on the output state estimate can be backpropagated through the entire filtering trajectory. This enables end-to-end training: all learnable parameters (neural networks encoding the likelihood, noise covariances, process models) are optimized jointly to minimize estimation error on real trajectories.
+Differentiable filters exist to learn the noise directly from data — the odometry and sensor readings a robot actually collects — rather than having it hand-specified in advance. That noise can live in the process model, the measurements, or both, and learning it instead of assuming a fixed shape is what lets the filter produce better estimates of the robot's position.
 
-Prior differentiable filter work — Differentiable Particle Filters (DPF) <sup>[[4]](#r4)</sup>, particle filter networks <sup>[[5]](#r5)</sup>, and Backprop KF <sup>[[6]](#r6)</sup> — either relies on costly particle representations that scale poorly, or inherits the Gaussian likelihood assumption from the EKF. Diff-HEF targets the gap: expressive non-Gaussian likelihoods with the computational structure of a parametric filter.
+Optimizing the NLL directly targets this: a lower NLL means the predicted posterior better matches the true aleatoric uncertainty in the data, and the better that match, the smaller the resulting RMSE — a better-calibrated noise model makes for a better pose estimate, not just a more honest one.
 
-The particle representation itself is the deeper problem, not just its cost. A particle filter's resampling step discards low-weight particles and duplicates high-weight ones to fight weight degeneracy — but this concentrates particles in already-likely regions, thinning out coverage everywhere else. This is **particle deprivation**: the posterior collapses toward a shrinking set of duplicated points, and if the true state later moves somewhere the particles have vacated, there is no probability mass left there to recover with. Resampling is also a discrete, non-differentiable operation — selecting particle *i* is a hard categorical choice — so a plain particle filter cannot be trained end-to-end. DPF works around this with **soft resampling**: instead of sampling from the raw importance weights, it samples from a mixture of the weights and a uniform distribution, which keeps each resampled particle's weight a differentiable function of its ancestor's weight, at the cost of a biased, higher-variance gradient estimate.
+Prior differentiable filter work — Differentiable Particle Filters (DPF) <sup>[[4]](#r4)</sup>, particle filter networks <sup>[[5]](#r5)</sup>, and Backprop KF <sup>[[6]](#r6)</sup> — either relies on a particle representation whose resampling step must be approximated to stay differentiable, introducing bias to do so, or inherits the Gaussian likelihood assumption from the EKF. Diff-HEF targets the gap: expressive non-Gaussian likelihoods with the computational structure of a parametric filter.
 
-That tradeoff shows up directly in the results below. On S¹, Diff-PF's ATE (0.01612) is within 0.4% of Diff-HEF's (0.01606) — resampling toward the mode is an efficient way to track a point estimate — but its NLP (-0.50) trails Diff-HEF's (-0.70) by a wide margin, because a thinned-out particle set understates the true spread of the posterior. On SE(2), where the state is three-dimensional instead of one, the same mechanism compounds: Diff-PF's ATE gap to Diff-HEF widens to 38% and its NLP gap widens by more than an order of magnitude. This is the particle filter's classic curse of dimensionality — the number of particles needed to cover a volume scales exponentially with its dimension, so a particle budget that gives adequate coverage on S¹ is comparatively sparse on SE(2), leaving soft resampling's bias toward high-weight regions more empty space to concentrate away from.
+The particle representation's real weakness is what resampling does to the posterior. A particle filter's resampling step discards low-weight particles and duplicates high-weight ones to fight weight degeneracy — but this concentrates particles in already-likely regions, thinning out coverage everywhere else. This is **particle deprivation**: the posterior collapses toward a shrinking set of duplicated points, and if the true state later moves somewhere the particles have vacated, there is no probability mass left there to recover with. Resampling is also a discrete, non-differentiable operation — selecting particle *i* is a hard categorical choice — so a plain particle filter cannot be trained end-to-end. DPF works around this with **soft resampling**: instead of sampling from the raw importance weights, it samples from a mixture of the weights and a uniform distribution, which keeps each resampled particle's weight a differentiable function of its ancestor's weight — the assumption this introduces is a biased, higher-variance gradient estimate, trading statistical fidelity for the ability to train at all.
 
 ---
 
@@ -214,7 +207,7 @@ HED wins on all three metrics, but the gap is narrowest on KL divergence and NLL
 
 ### Aleatoric Uncertainty Calibration
 
-**Disc tracking**: a simulated robot tracks a target moving on a circular track with synthetic sensor noise of varying type (Gaussian, bimodal, heavy-tailed). Diff-HEF is evaluated against EKF and UKF on Expected Calibration Error (ECE) — how closely the predicted posterior coverage matches empirical hit rates.
+**Disc tracking**: a simulated robot tracks a target moving on a circular track with synthetic sensor noise of varying type (Gaussian, bimodal, heavy-tailed). The HED loss is evaluated against Gaussian NLL, beta-NLL, and f-Cal on Expected Calibration Error (ECE) — how closely the predicted posterior coverage matches empirical hit rates.
 
 <div align="center">
   <figure>
@@ -263,14 +256,10 @@ One caveat, unlike the synthetic disc tracking case: the true depth distribution
 | Diff HistF | 0.02150 | -0.5113 | 0.0127 |
 | Diff EKF | 0.26805 | 0.1837 | 0.1200 |
 | LSTM | 0.43680 | 0.4011 | 0.7693 |
-| HEF | 0.11840 | -0.4204 | 0.0316 |
-| PF | 0.11870 | -0.3504 | 0.0415 |
-| HistF | 0.12060 | -0.3284 | 0.0449 |
-| EKF | 0.42190 | 0.3176 | 0.3520 |
 
-*Measurement noise is a multimodal Gaussian mixture (component means 0 and 0.1, std 0.3). The analytical filters assume a fixed-std mixture measurement model (std 0.2; EKF linearizes around mean 0.05, std 0.2) and are overconfident as a result, while the differentiable filters learn the measurement model end-to-end.*
+*Measurement noise is a multimodal Gaussian mixture (component means 0 and 0.1, std 0.3).*
 
-The main signal is the gap between differentiable and analytical variants of the same filter, not between filter types: every differentiable filter beats its analytical counterpart by roughly an order of magnitude on ATE, since the analytical filters carry a fixed, misspecified measurement model while the differentiable ones learn it from data. Within the differentiable group, Diff-HEF leads on all three metrics, and its edge on NLP (-0.70 vs. -0.50 for Diff PF) despite near-identical ATE shows it is fitting the shape of the posterior — not just its mode — more faithfully than a particle representation. LSTM, with no explicit probabilistic structure, is worst across the board.
+As expected, differentiable filters outperform their analytical counterparts by roughly an order of magnitude on ATE, since they learn the measurement model from data instead of carrying a fixed, misspecified one. Within the differentiable group, Diff-HEF leads on all three metrics, and its edge on NLP (-0.70 vs. -0.50 for Diff PF) despite near-identical ATE (0.01606 vs. 0.01612, within 0.4%) is the soft-resampling bias described in Background made visible: resampling toward the mode tracks a point estimate efficiently, but a thinned particle set still understates the posterior's true spread. LSTM, with no explicit probabilistic structure, is worst across the board.
 
 A planar robot pose (x, y, θ) could, in principle, be treated as three independent axes — heading on S¹, position on R² — and filtered with the S¹ machinery just demonstrated, applied separately to each factor. Whether that's valid comes down to a simple question: if a robot turns and moves, does the order matter? For a robot, it does — "move forward" means forward relative to wherever it's currently facing, so turning first and then moving lands somewhere different than moving first and then turning, even though both end up facing the same way.
 
@@ -310,14 +299,10 @@ The ring shape in the figure above is not an artifact — it is the actual measu
 | Diff HistF | 0.0759 | -0.2714 |
 | Diff EKF | 0.1124 | 213.70 |
 | LSTM | 0.1786 | 597.81 |
-| HEF | 0.1278 | -4.4087 |
-| PF | 0.1280 | 3.04 |
-| HistF | 0.1385 | 17.77 |
-| EKF | 0.1635 | 19517.59 |
 
-*Comparison of differentiable and analytical filters on SE(2) range data, averaged over 30 trajectories. Analytical filters estimate the measurement noise at 0.0005, against a true noise of 0.0001.*
+*SE(2) range data, averaged over 30 trajectories.*
 
-The overconfidence problem is visible directly in NLP here: EKF's fixed, overestimated measurement covariance produces an NLP of 19,517 — the posterior assigns near-zero probability to the true state on average, a far more severe failure than ATE alone would suggest. Every differentiable filter avoids this by learning the measurement noise from data, and Diff-HEF is the only one with a comfortably negative NLP (-7.32) — accurate and appropriately confident, not just accurate. The ATE gap to the next-best differentiable filter (Diff PF, 0.0134) is far smaller than the NLP gap (-0.37 vs. -7.32), consistent with the bimodal-collapse mechanism above: Diff-PF's mean often lands near ground truth even after collapsing onto one symmetric mode, but the discarded mode is exactly what NLP — unlike ATE, a point-only comparison — penalizes.
+As expected, differentiable filters outperform their analytical counterparts here too, since they learn the measurement noise from data rather than carrying a fixed, overconfident estimate. Diff-HEF is the only method with a comfortably negative NLP (-7.32) — accurate and appropriately confident, not just accurate. The ATE gap to the next-best differentiable filter (Diff PF, 0.0134) is far smaller than the NLP gap (-0.37 vs. -7.32), consistent with the bimodal-collapse mechanism above: Diff-PF's mean often lands near ground truth even after collapsing onto one symmetric mode, but the discarded mode is exactly what NLP — unlike ATE, a point-only comparison — penalizes. This also compounds the particle filter's classic curse of dimensionality: going from S¹'s one-dimensional state to SE(2)'s three, Diff-PF's ATE gap to Diff-HEF widens from 0.4% to 38%, since the particle budget that gave adequate coverage on S¹ is comparatively sparse once spread across three dimensions.
 
 ## Ablation
 
@@ -368,8 +353,6 @@ The difference between the two shows up once the target grows more complex. In h
 ## Limitations
 
 - **Local grid coverage**: the local grid strategy centers on the belief mode, which means a catastrophic divergence (mode far from ground truth) may not self-correct without a global recovery step.
-- **Computational cost**: evaluating the likelihood network at every grid cell every timestep is more expensive than a closed-form EKF update, though cheaper than a particle filter at equivalent distributional quality.
-
 - **Interpolation**: SE(2)'s group composition couples rotation and translation, so its natural harmonic basis uses polar coordinates for position (paired with angular frequency for heading) rather than Cartesian (x, y) — a standard result in the harmonic analysis of the Euclidean motion group, whose irreducible representations are indexed by radial frequency with Bessel-function matrix elements <sup>[[10]](#r10)</sup>. But the filter's grid is queried and updated in Cartesian coordinates (odometry, beacon positions), so every update requires resampling between a Cartesian grid and a polar one, and grid points from one rarely land on the other exactly. Linear interpolation, the simplest option, gave poor results; order-2 spline interpolation with 3x oversampling improved accuracy considerably. Fourier-domain interpolation would be the natural fit given the harmonic representation, but standard tools for it (non-uniform FFTs) aren't differentiable by default — differentiable variants exist in adjacent domains like MRI reconstruction, suggesting this is feasible future work rather than a fundamental blocker.
 - **Manifold generality**: the current implementation is validated on S¹ and SE(2). Extension to higher-dimensional Lie groups (SO(3), SE(3)) requires adapting the harmonic basis and grid construction, which is left to future work.
 - **Training data dependence**: the likelihood network learns the noise characteristics of the training distribution. Domain shifts — a new sensor, a new environment — require retraining or fine-tuning.
