@@ -3,8 +3,6 @@ layout: post
 title: "Differentiable Bayesian Filtering with Harmonic Exponential Distributions"
 ---
 
-# Differentiable Bayesian Filtering with Harmonic Exponential Distributions
-
 **M.Sc. Thesis, Université de Montréal and MILA· 2025** \
 **Supervisor:** Liam Paull and Guy Wolf \
 **Status:** Accepted
@@ -15,16 +13,15 @@ title: "Differentiable Bayesian Filtering with Harmonic Exponential Distribution
 
 <div align="center">
   <figure>
-    <img src="/thesis/assets/perseverance_landing.png" alt="Localisation without GPS" width="320">
-    <figcaption><em>Mars Perseverance landing ellipse shrunk from 200 km to 7 km axis. Even within 7 km, hazardous terrain remains.</em></figcaption>
+    <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnluazg3bzN5OXh6ZTVuMWtzY3F2ZGZkZTY2dW5nMXA5OTVsZXl3aSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/UwYEkx7vTVmdEObCTc/giphy.gif" alt="Localisation without GPS" width="320">
   </figure>
 </div>
 
+Ever been lost while hiking despite having a map, road signs, and good eyesight? Now imagine how a robot would approach it.
+
 ## Abstract
 
-State estimation under non-linear, heteroscedastic noise remains a fundamental challenge in autonomous robotics. Sensor noise and actuator drift both compound over time, and without explicitly modeling their true — often non-Gaussian — shape, a robot's pose estimate becomes inaccurate and overconfident, propagating errors into downstream tasks like motion planning and control.
-
-Classical filters — EKF, UKF, particle filters — are all interpretations of the recursive Bayes filter, and all require a specified observation likelihood `p(z|x)`, in practice almost always assumed Gaussian. That assumption overestimates certainty under heavy-tailed or multimodal noise and underestimates it in well-behaved regimes — neither acceptable for safety-critical systems. Learning-based methods have progressively addressed this by fitting the noise model directly from data instead of assuming whatever shape is analytically convenient.
+Most real-world dynamical systems evolve nonlinearly and are observed through nonlinear sensors, making state estimation under non-linear, heteroscedastic noise a fundamental challenge in autonomous robotics. Sensor noise and actuator drift both compound over time, and without explicitly modeling their true — often non-Gaussian — shape, a robot's pose estimate becomes inaccurate and overconfident, propagating errors into downstream tasks like motion planning and control. Classical filters — EKF, histogram filters, particle filters — are all interpretations of the recursive Bayes filter, and all require a specified observation likelihood `p(z|x)`, in practice almost always assumed Gaussian. That assumption overestimates certainty under heavy-tailed or multimodal noise and underestimates it in well-behaved regimes — neither acceptable for safety-critical systems. Learning-based methods have progressively addressed this by fitting the noise model directly from data instead of assuming whatever shape is analytically convenient.
 
 This work introduces **Diff-HEF (Differential Harmonic Exponential Filter)**, built over HEF <sup>[[2]](#r2)</sup> — a Bayesian filter that represents probability distributions as Harmonic Exponential Distributions (HED) <sup>[[1]](#r1)</sup> on compact Lie groups. Diff-HEF extends HEF with a differentiable, learned observation likelihood whose parameters are optimized end-to-end from trajectory data via backpropagation through time. Rather than prescribing a noise shape, Diff-HEF learns one that minimizes downstream state estimation error. Experiments on circular state spaces and SE(2) range-bearing simulations show that Diff-HEF produces better-calibrated posteriors than EKF and particle filter baselines, with consistent gains in non-linear heteroscedastic environments where classical assumptions most severely break down.
 
@@ -35,6 +32,13 @@ This work introduces **Diff-HEF (Differential Harmonic Exponential Filter)**, bu
 4. **Diff-HEF**, the full differentiable filter on SE(2), benchmarked and analyzed against classical and differentiable baselines (EKF, PF, HistF, LSTM).
 
 ---
+
+<div align="center">
+  <figure>
+    <img src="/thesis/assets/perseverance_landing.png" alt="Localisation without GPS" width="320">
+    <figcaption><em>Mars Perseverance landing ellipse shrunk from 200 km to 7 km axis. Even within 7 km, hazardous terrain remains.</em></figcaption>
+  </figure>
+</div>
 
 ## Introduction
 
@@ -72,7 +76,7 @@ The observation likelihood `p(z_t | x_t)` is the term this work targets.
   </figure>
 </div>
 
-The Harmonic Exponential Distribution generalizes the exponential family to compact manifolds using a Fourier/harmonic basis. On the circle S¹, the density is:
+The Harmonic Exponential Distribution, introduced by Cohen et al. <sup>[[1]](#r1)</sup>, generalizes the exponential family to compact manifolds using a Fourier/harmonic basis. On the circle S¹, the density is:
 
 ```
 p(g | η) = (1 / Z_η) · exp(η · T(g))
@@ -356,7 +360,7 @@ The difference between the two shows up once the target grows more complex. In h
 - **Interpolation**: SE(2)'s group composition couples rotation and translation, so its natural harmonic basis uses polar coordinates for position (paired with angular frequency for heading) rather than Cartesian (x, y) — a standard result in the harmonic analysis of the Euclidean motion group, whose irreducible representations are indexed by radial frequency with Bessel-function matrix elements <sup>[[10]](#r10)</sup>. But the filter's grid is queried and updated in Cartesian coordinates (odometry, beacon positions), so every update requires resampling between a Cartesian grid and a polar one, and grid points from one rarely land on the other exactly. Linear interpolation, the simplest option, gave poor results; order-2 spline interpolation with 3x oversampling improved accuracy considerably. Fourier-domain interpolation would be the natural fit given the harmonic representation, but standard tools for it (non-uniform FFTs) aren't differentiable by default — differentiable variants exist in adjacent domains like MRI reconstruction, suggesting this is feasible future work rather than a fundamental blocker.
 - **Manifold generality**: the current implementation is validated on S¹ and SE(2). Extension to higher-dimensional Lie groups (SO(3), SE(3)) requires adapting the harmonic basis and grid construction, which is left to future work.
 - **Training data dependence**: the likelihood network learns the noise characteristics of the training distribution. Domain shifts — a new sensor, a new environment — require retraining or fine-tuning.
-- **Baseline distribution families are still mostly Gaussian**: HED is shown to out-calibrate Gaussian-parameterized methods (NLL, beta-NLL <sup>[[9]](#r9)</sup>, f-Cal <sup>[[3]](#r3)</sup>) under higher variance, out-fit a Gaussian model on a non-Gaussian target (Beta), out-fit a fixed-mode-count MDN <sup>[[8]](#r8)</sup> on a multimodal target, and out-perform non-parametric filters (PF, HistF) on both S¹ and SE(2). Missing is the more flexible end of density estimation — normalizing flows and diffusion models — both capable in principle of representing arbitrary distributions despite a Gaussian base or noise process. Neither is a drop-in baseline: standard flows and diffusion are built for Euclidean data, and manifold-native flows exist for the circle and torus <sup>[[11]](#r11)</sup> but not yet for SE(2)'s specific rotation-translation coupling, while exact diffusion likelihoods require solving a probability-flow ODE per query — a nontrivial cost inside a filtering loop against HED's closed-form normalizer. Whether HED's edge would hold against these families, and which is best suited to SE(2) specifically, remains open.
+- **Baseline distribution families are still mostly Gaussian**: HED is shown to out-calibrate Gaussian-parameterized methods (NLL, beta-NLL <sup>[[9]](#r9)</sup>, f-Cal <sup>[[3]](#r3)</sup>) under higher variance, out-fit a Gaussian model on a non-Gaussian target (Beta), out-fit a fixed-mode-count MDN <sup>[[8]](#r8)</sup> on a multimodal target, and out-perform non-parametric filters (PF, HistF) on both S¹ and SE(2). Missing is the more flexible end of density estimation — normalizing flows and diffusion models — both capable in principle of representing arbitrary distributions despite a Gaussian base or noise process. Neither is a drop-in baseline: standard flows and diffusion are built for Euclidean data, and manifold-native flows exist for the circle and torus <sup>[[11]](#r11)</sup> but not yet for SE(2)'s specific rotation-translation coupling, while exact diffusion likelihoods require solving a probability-flow ODE per query, an iterative approximation in place of HED's closed-form normalizer, with its own assumptions about how that ODE is solved. Whether HED's edge would hold against these families, and which is best suited to SE(2) specifically, remains open.
 
 ---
 
@@ -365,6 +369,8 @@ The difference between the two shows up once the target grows more complex. In h
 This work introduced Diff-HEF, a differentiable Bayesian filter that replaces the fixed Gaussian observation likelihood with a learned Harmonic Exponential Distribution. Training end-to-end via BPTT allows the filter to adapt its uncertainty representation directly to downstream estimation loss. Experiments demonstrate measurable improvements in posterior calibration and trajectory error over classical Gaussian filters in settings where the true sensor noise is non-Gaussian — precisely the settings most common in real-world robot deployment.
 
 The central insight is that the filter structure need not change — only the likelihood model does. By making that model expressive and learnable while preserving the recursive Bayesian update, Diff-HEF bridges the gap between principled probabilistic estimation and data-driven adaptability.
+
+Most learned filters and density estimators are still built for Euclidean data, even when the underlying state — a robot's pose — lives on a motion group like SE(2) or SE(3). HED's native fit to these groups, as HEF already showed, is what makes it a compelling representation in the first place; combined with the differentiability introduced here, it's worth asking directly whether this pairing is the most convenient and reliable way to capture uncertainty and estimate pose on SE(2)/SE(3), rather than a Euclidean approximation bent to fit the manifold after the fact.
 
 ---
 
