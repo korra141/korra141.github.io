@@ -3,8 +3,6 @@ layout: post
 title: "Probing FinGPT's Forecasting Module"
 ---
 
-# Probing FinGPT's Forecasting Module
-
 **An Empirical and Ablative Evaluation of Unpublished Claims**  
 
 **Repo:** [github.com/korra141/FinGPT](https://github.com/korra141/FinGPT) \
