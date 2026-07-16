@@ -146,6 +146,40 @@
       margin-bottom: 1.25rem;
     }
 
+    .hero-education {
+      max-width: 480px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .edu-entry + .edu-entry {
+      padding-top: 0.85rem;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .edu-degree {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .edu-detail {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .edu-label {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
     .hero-links {
       display: flex;
       gap: 0.75rem;
@@ -284,20 +318,6 @@
     /* ── CV ── */
     #cv { margin-bottom: 5rem; }
 
-    .cv-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .cv-embed {
-      width: 100%;
-      height: 900px;
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-    }
-
     .cv-actions {
       display: flex;
       gap: 0.75rem;
@@ -402,7 +422,6 @@
       .avatar-wrap { justify-content: center; }
       .nav-links { gap: 1rem; }
       .thesis-card { flex-direction: column; }
-      .cv-embed { height: 500px; }
     }
   </style>
 </head>
@@ -448,12 +467,17 @@
         tell us what a model truly knows versus what it's only guessing at.
       </p>
 
-      <p class="hero-bio">
-        M.Sc., Université de Montréal &amp; MILA — supervised by Liam Paull and Guy Wolf
-        (thesis accepted; publication in RA-L). B.E., BITS Pilani, Goa — undergraduate
-        thesis on generative adversarial networks with Luigi Malagò at the Romanian
-        Institute of Science and Technology.
-      </p>
+      <div class="hero-education">
+        <div class="edu-entry">
+          <p class="edu-degree">M.Sc. Robotics &amp; AI — Université de Montréal &amp; MILA</p>
+          <p class="edu-detail"><span class="edu-label">Thesis:</span> Differentiable Bayesian Filtering with Harmonic Exponential Distributions <em>(accepted)</em></p>
+          <p class="edu-detail">Supervised by Liam Paull &amp; Guy Wolf · Publication in RA-L</p>
+        </div>
+        <div class="edu-entry">
+          <p class="edu-degree">B.E. — BITS Pilani, Goa</p>
+          <p class="edu-detail"><span class="edu-label">Thesis:</span> Generative Adversarial Networks, with Luigi Malagò at the Romanian Institute of Science and Technology</p>
+        </div>
+      </div>
 
       <!-- Replace yourusername and you@email.com -->
       <div class="hero-links">
@@ -494,11 +518,14 @@
     <!-- ── CV ── -->
     <section id="cv">
       <p class="section-label">CV</p>
-      <div class="cv-wrap">
-        <embed src="/assets/ria_arora_cv.pdf" type="application/pdf" class="cv-embed" />
+      <div class="thesis-card">
+        <div>
+          <h3>Curriculum Vitae</h3>
+          <p>Education, publications, and research experience — robotics, differentiable filtering, and numerical reasoning in LLMs.</p>
+        </div>
         <div class="cv-actions">
-          <a class="btn-pill" href="/assets/ria_arora_cv.pdf" target="_blank">View Full Screen ↗</a>
-          <a class="btn-pill" href="/assets/ria_arora_cv.pdf" download>Download PDF</a>
+          <a class="btn-pill" href="/assets/ria_arora_cv.pdf" target="_blank">View CV ↗</a>
+          <a class="btn-pill" href="/assets/ria_arora_cv.pdf" download>Download</a>
         </div>
       </div>
     </section>
