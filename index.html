@@ -146,6 +146,14 @@
       margin-bottom: 1.25rem;
     }
 
+    .hero-credentials {
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin-bottom: 1.25rem;
+    }
+
     .hero-links {
       display: flex;
       gap: 0.75rem;
@@ -329,31 +337,6 @@
       white-space: nowrap;
     }
 
-    /* ── About ── */
-    #about {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 3rem;
-      margin-bottom: 5rem;
-    }
-
-    .about-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 400;
-      font-style: italic;
-      color: var(--text-secondary);
-      line-height: 1.25;
-    }
-
-    .about-body {
-      font-size: 13.5px;
-      line-height: 1.95;
-      color: var(--text-secondary);
-    }
-
-    .about-body p + p { margin-top: 1rem; }
-
     /* ── Contact ── */
     #contact { margin-bottom: 4rem; }
 
@@ -395,31 +378,6 @@
       border-color: var(--text-muted);
     }
 
-    /* ── Footer ── */
-    footer {
-      border-top: 0.5px solid var(--border);
-      padding-top: 1.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .footer-copy { font-size: 11px; color: var(--text-muted); }
-
-    .footer-links { display: flex; gap: 1.5rem; }
-
-    .footer-links a {
-      font-size: 11px;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover { color: var(--text-primary); }
-
     /* ── Responsive ── */
     @media (max-width: 640px) {
       .hero { grid-template-columns: 1fr; text-align: center; }
@@ -427,7 +385,6 @@
       .hero-bio { margin: 0 auto 1.25rem; }
       .hero-links { justify-content: center; }
       .avatar-wrap { justify-content: center; }
-      #about { grid-template-columns: 1fr; gap: 1rem; }
       .nav-links { gap: 1rem; }
       .thesis-card { flex-direction: column; }
     }
@@ -442,7 +399,6 @@
     <ul class="nav-links">
       <li><a href="#projects">Projects</a></li>
       <li><a href="#blog">Blog</a></li>
-      <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -469,7 +425,17 @@
       <p class="hero-bio">
         I'm a research engineer specializing in robotics and AI, with a focus on developing
         algorithms that enable robots to learn from their environment and adapt to new tasks.
-        My work bridges the gap between cutting-edge research and real-world applications.
+        My work centers on how learned systems perceive space and know when to trust themselves —
+        distance metrics and geometric structure in state estimation, how vision-language-action
+        models internalize numbers, and how calibrated uncertainty reveals what a model actually
+        knows versus what it's only guessing at.
+      </p>
+
+      <p class="hero-credentials">
+        M.Sc., Université de Montréal &amp; MILA — supervised by Liam Paull and Guy Wolf
+        (thesis accepted; publication in RA-L). B.E., BITS Pilani, Goa — undergraduate
+        thesis on generative adversarial networks with Luigi Malagò at the Romanian
+        Institute of Science and Technology.
       </p>
 
       <!-- Replace yourusername and you@email.com -->
@@ -618,23 +584,6 @@
       </div>
     </section>
 
-    <!-- ── About ── -->
-    <section id="about">
-      <p class="about-heading">About<br>me</p>
-      <div class="about-body">
-        <!-- Replace with your own text -->
-        <!-- <p>
-          I'm a data scientist with a background in applied statistics and a passion for
-          machine learning research. I enjoy working on problems that sit at the edge of
-          what models can reliably do — explainability, robustness, and real-world deployment.
-        </p>
-        <p>
-          When I'm not training models, I write about ML concepts, contribute to open-source
-          tools, and mentor junior data scientists.
-        </p> -->
-      </div>
-    </section>
-
     <!-- ── Contact ── -->
     <section id="contact">
       <p class="section-label">Get in touch</p>
@@ -649,16 +598,6 @@
     </section>
 
   </main>
-
-  <!-- ── Footer ── -->
-  <footer>
-    <span class="footer-copy">© 2025 Your Name</span>
-    <div class="footer-links">
-      <a href="https://github.com/yourusername" target="_blank">GitHub</a>
-      <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
-      <a href="mailto:you@email.com">Email</a>
-    </div>
-  </footer>
 
 </div>
 </body>
