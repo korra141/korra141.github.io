@@ -146,14 +146,6 @@
       margin-bottom: 1.25rem;
     }
 
-    .hero-credentials {
-      font-size: 12.5px;
-      line-height: 1.7;
-      color: var(--text-muted);
-      max-width: 500px;
-      margin-bottom: 1.25rem;
-    }
-
     .hero-links {
       display: flex;
       gap: 0.75rem;
@@ -289,6 +281,29 @@
       margin-bottom: 0.4rem;
     }
 
+    /* ── CV ── */
+    #cv { margin-bottom: 5rem; }
+
+    .cv-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .cv-embed {
+      width: 100%;
+      height: 900px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .cv-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
     .thesis-card p {
       font-size: 13px;
       color: var(--text-secondary);
@@ -387,6 +402,7 @@
       .avatar-wrap { justify-content: center; }
       .nav-links { gap: 1rem; }
       .thesis-card { flex-direction: column; }
+      .cv-embed { height: 500px; }
     }
   </style>
 </head>
@@ -397,8 +413,9 @@
   <nav>
     <span class="nav-logo">Ria Arora</span>
     <ul class="nav-links">
+      <li><a href="#cv">CV</a></li>
       <li><a href="#projects">Projects</a></li>
-      <li><a href="#blog">Blog</a></li>
+      <!-- <li><a href="#blog">Blog</a></li> --> <!-- re-enable when blog section is unhidden -->
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -425,13 +442,13 @@
       <p class="hero-bio">
         I'm a research engineer specializing in robotics and AI, with a focus on developing
         algorithms that enable robots to learn from their environment and adapt to new tasks.
-        My work centers on how learned systems perceive space and know when to trust themselves —
-        distance metrics and geometric structure in state estimation, how vision-language-action
-        models internalize numbers, and how calibrated uncertainty reveals what a model actually
-        knows versus what it's only guessing at.
+        I'm interested in what learned systems actually understand about the physical world —
+        how they represent space, distance, and geometric structure; how vision-language-action
+        models internalize numbers; and, underneath all of it, whether calibrated uncertainty can
+        tell us what a model truly knows versus what it's only guessing at.
       </p>
 
-      <p class="hero-credentials">
+      <p class="hero-bio">
         M.Sc., Université de Montréal &amp; MILA — supervised by Liam Paull and Guy Wolf
         (thesis accepted; publication in RA-L). B.E., BITS Pilani, Goa — undergraduate
         thesis on generative adversarial networks with Luigi Malagò at the Romanian
@@ -474,6 +491,18 @@
       </div>
     </section>
 
+    <!-- ── CV ── -->
+    <section id="cv">
+      <p class="section-label">CV</p>
+      <div class="cv-wrap">
+        <embed src="/assets/ria_arora_cv.pdf" type="application/pdf" class="cv-embed" />
+        <div class="cv-actions">
+          <a class="btn-pill" href="/assets/ria_arora_cv.pdf" target="_blank">View Full Screen ↗</a>
+          <a class="btn-pill" href="/assets/ria_arora_cv.pdf" download>Download PDF</a>
+        </div>
+      </div>
+    </section>
+
     <section id="projects">
       <p class="section-label">Recent Projects</p>
       <div class="projects-grid">
@@ -499,19 +528,19 @@
 
         <!-- Project 2 -->
         <article class="project-card">
-          <p class="project-tag">SLAM · 2026</p>
-          <h2 class="project-title">SLAM in degenerate environments</h2>
+          <p class="project-tag">SLAM · 2024–Present</p>
+          <h2 class="project-title">SLAM in Degenerate Feature Environments</h2>
           <p class="project-desc">
-            Geometric SLAM degenerates in featureless or repetitive environments — long corridors, symmetric rooms — where point cloud registration loses constraint and drift accumulates unboundedly without loop closure. Built on SuperOdom, this project evaluates classical sensor fusion (LiDAR + IMU + wheel odometry) on real long-corridor robot trajectories to quantify how far multi-modal input alone can push drift bounds before a learned or topological component becomes necessary.
+            Investigating sensor adaptation for SLAM in degenerate feature environments — featureless corridors, low-texture outdoor terrain — using a LiDAR-Inertial-Visual sensor suite (LiDAR, IMU, RGB-D). Building on LIO-SAM and Super Odometry backbones, extended with visual-inertial odometry for navigational robots (ROS2 Humble) to improve robustness as LiDAR features degrade. Also modelling and propagating localisation uncertainty under uninformative observations, bridging directly to thesis work on non-Gaussian uncertainty estimation on Lie groups.
           </p>
           <div class="project-footer">
             <div class="stack">
-              <span class="pill">TensorFlow</span>
-              <span class="pill">OpenCV</span>
+              <span class="pill">ROS2 Humble</span>
+              <span class="pill">LIO-SAM</span>
             </div>
             <div class="project-links">
-              <a href="https://github.com/korra141/korra141.github.io/blob/main/projects/projects_project-2.md" target="_blank">Read more →</a>
-              <a href="https://github.com/korra141/project-2" target="_blank">GitHub</a>
+              <a href="/projects/projects_project-2/" target="_blank">Read more →</a>
+              <a href="https://github.com/korra141/slam-fusion" target="_blank">GitHub</a>
             </div>
           </div>
         </article>
@@ -536,19 +565,18 @@
         </article>
 
          <article class="project-card">
-          <p class="project-tag">RL · 2026</p>
-          <h2 class="project-title">Flappy Bird — Learning to Play with RL</h2>
+          <p class="project-tag">Publication · RA-L 2026</p>
+          <h2 class="project-title">Harmonic Exponential Filter</h2>
           <p class="project-desc">
-            A hands-on implementation of core RL algorithms — DQN, PPO, and policy gradient — applied to Flappy Bird. Built from scratch to understand how agents learn from sparse rewards, how hyperparameters affect convergence, and where each algorithm breaks down. A practical sandbox for getting intuition on RL before applying it to harder problems.
+            A Bayesian filter that represents probability distributions as Harmonic Exponential Distributions on compact Lie groups, enabling closed-form, exact Bayesian updates for state estimation on manifolds like SO(2) and SE(2). Published in IEEE Robotics and Automation Letters (RA-L).
           </p>
           <div class="project-footer">
             <div class="stack">
-              <span class="pill">PyTorch</span>
-              <span class="pill">Gym</span>
+              <span class="pill">Lie Groups</span>
+              <span class="pill">Bayesian Filtering</span>
             </div>
             <div class="project-links">
-              <a href="https://github.com/korra141/korra141.github.io/blob/main/projects/projects_project-3.md" target="_blank">Read more →</a>
-              <a href="https://github.com/korra141/project-3" target="_blank">GitHub</a>
+              <a href="https://montrealrobotics.ca/hef/" target="_blank">Read paper ↗</a>
             </div>
           </div>
         </article>
@@ -567,6 +595,7 @@
          3. GitHub Pages renders them automatically
          4. Update the href, title, summary, and date below
          ════════════════════════════════════════ -->
+    <!-- Blog section hidden until posts are finalized — remove this comment wrapper to publish
     <section id="blog">
       <p class="section-label">Blog</p>
       <div class="blog-list">
@@ -579,10 +608,17 @@
           <span class="blog-meta">May 2026</span>
         </a>
 
-
+        <a class="blog-item" href="/blog/post-2">
+          <div class="blog-left">
+            <span class="blog-title">How Much Numerical Reasoning Do LLMs Actually Do?</span>
+            <span class="blog-summary">Why ratios and decimals break LLMs — Weber's Law, digit-wise Fourier representations, and the tokenization failures that hit P/E ratios hardest.</span>
+          </div>
+          <span class="blog-meta">May 2026</span>
+        </a>
 
       </div>
     </section>
+    -->
 
     <!-- ── Contact ── -->
     <section id="contact">
