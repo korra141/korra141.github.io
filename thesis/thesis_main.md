@@ -8,6 +8,7 @@ title: "Differentiable Bayesian Filtering with Harmonic Exponential Distribution
 **Status:** Accepted
 
 <a class="btn-pill" href="https://umontreal.scholaris.ca/items/70d3f215-6d63-4307-8311-bc33ed8c3522" target="_blank">Read the Full Thesis ↗</a>
+<a class="btn-pill" href="https://github.com/korra141/Diff-HEF" target="_blank">Code ↗</a>
 
 ---
 
@@ -42,11 +43,11 @@ This work introduces **Diff-HEF (Differential Harmonic Exponential Filter)**, bu
 
 ## Introduction
 
-GPS is rarely as reliable as we assume. In open sky it carries a **3–5 meter** error radius; in cities, multipath reflections off buildings push that to **10–50 meters**. Indoors it fails entirely. For a pedestrian this means the occasional wrong street. For an autonomous system operating without a fallback, it is a mission failure.
+Knowing where you are — and how confident to be in that belief — is a problem every navigating agent faces, human or machine. A hiker checks a landmark against a map and trusts it more in clear weather than in fog; the uncertainty in the estimate matters as much as the estimate itself. GPS, when available, offloads this problem, but it is rarely as reliable as we assume. In open sky it carries a **3–5 meter** error radius; in cities, multipath reflections off buildings push that to **10–50 meters**. Indoors it fails entirely. For a hiker this means the occasional wrong turn. For an autonomous system operating without a fallback, it is a mission failure.
 
 The problem is more acute when there is no GPS at all. NASA's Perseverance rover navigates Jezero Crater on Mars with no satellite infrastructure — at landing, the best achievable targeting precision was a **~7 km ellipse** of terrain containing boulders, ridgelines, and slopes hazardous enough to end the mission (Figure 1). On the surface, Perseverance localizes by dead reckoning: integrating wheel encoders and inertial sensors forward from a known point. Errors accumulate with every meter traveled.
 
-Robots navigating GPS-denied environments — indoor warehouses, underground mines, urban canyons — must maintain a probabilistic belief over their own state using only onboard sensors. Dead reckoning integrates velocity and heading estimates forward in time, but small biases compound: a 1% odometry error over a 100-meter traverse produces meter-scale positional uncertainty. Correcting drift requires fusing external sensor observations (LIDAR returns, depth images, WiFi fingerprints) into the state estimate.
+The same problem confronts any agent navigating without external reference — a hiker relying on pace count and landmarks, or a robot fusing its own onboard sensors — but robots have to make the underlying belief explicit and computable. Robots navigating GPS-denied environments — indoor warehouses, underground mines, urban canyons — must maintain a probabilistic belief over their own state using only onboard sensors. Dead reckoning integrates velocity and heading estimates forward in time, but small biases compound: a 1% odometry error over a 100-meter traverse produces meter-scale positional uncertainty. Correcting drift requires fusing external sensor observations (LIDAR returns, depth images, WiFi fingerprints) into the state estimate.
 
 The difficulty is that these sensors do not produce Gaussian-distributed noise. A depth camera reporting distance to a partially-occluded surface yields a distribution with a sharp mode near the true range and a heavy tail of outlier returns. A LIDAR beam clipping the edge of a door frame produces a bimodal return. Real sensor noise is **heteroscedastic** — its shape and variance depend on the scene geometry, lighting, and dynamic objects present — properties no fixed Gaussian can capture.
 
