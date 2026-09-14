@@ -434,7 +434,7 @@
     <ul class="nav-links">
       <li><a href="#cv">CV</a></li>
       <li><a href="#projects">Projects</a></li>
-      <!-- <li><a href="#blog">Blog</a></li> --> <!-- re-enable when blog section is unhidden -->
+      <li><a href="#blog">Blog</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -660,11 +660,12 @@
          3. GitHub Pages renders them automatically
          4. Update the href, title, summary, and date below
          ════════════════════════════════════════ -->
-    <!-- Blog section hidden until posts are finalized — remove this comment wrapper to publish
+    <!-- post-1 and post-2 stay unlisted (drafts) — only post-3 is published below -->
     <section id="blog">
       <p class="section-label">Blog</p>
       <div class="blog-list">
 
+        <!--
         <a class="blog-item" href="/blog/post-1">
           <div class="blog-left">
             <span class="blog-title">Rigid Body Motions</span>
@@ -680,10 +681,26 @@
           </div>
           <span class="blog-meta">May 2026</span>
         </a>
+        -->
+
+        <a class="blog-item" href="/blog/post-4">
+          <div class="blog-left">
+            <span class="blog-title">Recreating FARM on Spot: From Fiducial to Scene Graph</span>
+            <span class="blog-summary">The setup notes behind the FARM replication — GraphNav, the fiducial-anchored seed frame, rosbag capture, the live Viser teleop bridge, and the offline scene-graph build, plus the open issues still unresolved.</span>
+          </div>
+          <span class="blog-meta">Sep 2026</span>
+        </a>
+
+        <a class="blog-item" href="/blog/post-3">
+          <div class="blog-left">
+            <span class="blog-title">Replicating FARM in the Real World: What Works, What Doesn't</span>
+            <span class="blog-summary">Three demo runs on a real Spot — one success, one partial, one failure — and a breakdown of why relational spatial grounding (near, between, on) is where the pipeline struggles hardest.</span>
+          </div>
+          <span class="blog-meta">Sep 2026</span>
+        </a>
 
       </div>
     </section>
-    -->
 
     <!-- ── Contact ── -->
     <section id="contact">
