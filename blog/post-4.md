@@ -4,8 +4,6 @@ title: "Recreating FARM on Spot: From Fiducial to Scene Graph"
 date: 2026-09-11
 ---
 
-# Recreating FARM on Spot: From Fiducial to Scene Graph
-
 *The setup notes behind [Replicating FARM in the Real World](/blog/post-3)
 — before we could report on what works and what doesn't, we had to get the
 pipeline running end-to-end on a real Spot. This is that part, written up
@@ -22,8 +20,10 @@ three know about each other by default. The work is mostly in the seams.
 
 ## The one thing that actually matters: frame alignment
 
+<div class="callout callout-red" markdown="1">
 Before touching any commands, it's worth being explicit about the part
 that will silently wreck the whole pipeline if you get it wrong.
+</div>
 
 A physical fiducial marker anchors both the navigation graph and the
 robot's localization. When you start recording a nav graph, wherever Spot
@@ -55,7 +55,7 @@ correctly** — get that wrong and every downstream `seed` transform is
 scaled and wrong in a way that's easy not to notice until objects and
 waypoints stop lining up in the viewer.
 
-## Step 1 — One Docker container, every session
+## <span class="step-badge">1</span> One Docker container, every session
 
 Every capture session — whether you're recording a bag or streaming
 live — starts from the same containerized ROS 2 environment:
@@ -87,7 +87,7 @@ ros2 launch realsense2_camera rs_launch.py align_depth.enable:=true
 This is the shared prerequisite for both paths below — record-then-process
 (Step 3) or live streaming (Step 4).
 
-## Step 2 — Record and upload the nav graph
+## <span class="step-badge">2</span> Record and upload the nav graph
 
 Confirm Spot can be pinged and sits on the VLAN exposed by the edge
 compute unit (an Orin, in our case). Power Spot on **at the spot that
@@ -123,7 +123,7 @@ python3 -m graph_nav_command_line \
     192.168.50.3
 ```
 
-## Step 3 — Record the rosbag
+## <span class="step-badge">3</span> Record the rosbag
 
 With the container from Step 1 running, record the synchronized RGB-D +
 odometry stream you'll later turn into scene-graph frames:
@@ -140,7 +140,7 @@ ros2 bag record -o rosbags/scene_graph_spot_2 \
 Drive Spot through the space while this runs. This is the path we used
 for the offline builds in the [previous post](/blog/post-3).
 
-## Step 4 — Or: stream it live and teleop through Viser
+## <span class="step-badge">4</span> Or: stream it live and teleop through Viser
 
 As an alternative — or in addition — a small WebSocket bridge streams
 Spot's video and odometry live and accepts navigation commands from a
@@ -158,7 +158,7 @@ python3 spot_graphnav_goal.py \
     --ws-url ws://127.0.0.1:8765
 ```
 
-## Step 5 — Frames in, scene graph out
+## <span class="step-badge">5</span> Frames in, scene graph out
 
 Once you have a bag, convert it into the `(rgb, depth, intrinsics, pose)`
 tuples the offline builder expects:
@@ -226,6 +226,6 @@ active list for next time:
 None of these blocked the demo runs in the [previous post](/blog/post-3),
 but they're the reason "it works" comes with an asterisk. The code for
 the scene-graph side is at
-[GoldenGait/FARM-Project](https://github.com/GoldenGait/FARM-Project) if
+[karthiksomz/FARM-Project](https://github.com/karthiksomz/FARM-Project) if
 you want to reproduce this yourself — `scene_graph.offline.run` is the
 entry point either way.

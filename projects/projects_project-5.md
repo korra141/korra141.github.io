@@ -5,7 +5,7 @@ title: "Planning with Scene Graphs on Spot"
 
 # Planning with Scene Graphs on Spot
 
-**Repo:** *(link to repo)* \
+**Repo:** [karthiksomz/FARM-Project](https://github.com/karthiksomz/FARM-Project) \
 **Stack:** ROS2 · Boston Dynamics Spot SDK · GraphNav · 3D Scene Graphs · SigLIP2 · Qwen3-VL · Viser \
 **Status:** In progress
 
@@ -25,7 +25,7 @@ A 3D scene graph represents a space as a graph of objects (nodes) with semantic 
 
 ## What Is the FARM Project
 
-Captured trajectories (RGB, depth, camera info) are fed into the [FARM project's](https://github.com/karthiks1701/FARM-Project) pipeline, which builds the scene graph: it associates detections across frames into persistent 3D objects, generates captions and embeddings for each, and — in principle — infers the relational edges between them. In practice, on the current data, that last part isn't landing yet: the retrieval script's own log falls back explicitly when it can't find a relational path —
+Captured trajectories (RGB, depth, camera info) are fed into the [FARM project's](https://github.com/karthiksomz/FARM-Project) pipeline, which builds the scene graph: it associates detections across frames into persistent 3D objects, generates captions and embeddings for each, and — in principle — infers the relational edges between them. In practice, on the current data, that last part isn't landing yet: the retrieval script's own log falls back explicitly when it can't find a relational path —
 
 ```
 Relational path unavailable ('NoneType' object has no attribute 'target_description');
@@ -52,6 +52,43 @@ The retrieval pipeline is an ensemble rather than a single model — the log sho
 - **Pose error from visual odometry** propagates directly into the scene graph — if the trajectory the objects were localized against is wrong, the objects are wrong too, independent of how good the captioning/embedding side is.
 - **No spatial object connections.** As above — the relational path is unavailable, so the graph can't yet answer anything that depends on how objects relate to each other, only "which object looks most like this query."
 - **Odometry/mapping failure on the longer trajectory.** One collected bag — through a bunker-like building — produced incorrect odometry and mapping. The likely cause is not using the Ouster's onboard IMU (a VectorNav IMU was used instead on that run); the fix going forward is to make sure the Ouster IMU is what's driving odometry, not a secondary IMU that isn't as tightly coupled to the LiDAR.
+
+*(Nuance from the demo runs below: the relational path isn't entirely dead — spatial predicates do get parsed and do get matched against candidates. What's missing is that they don't reliably re-rank candidates by whether the spatial relation actually holds in 3D, which is functionally close to "unavailable" but not quite the same failure.)*
+
+## Demo Runs: Three Use Cases
+
+The core premise FARM is testing is that plain semantic retrieval is enough when an object is visually **unique** in the scene, but breaks down on categories that recur — a chair, a table, a cabinet — where many instances share a caption and only their spatial relationships to other objects can tell them apart. Three demo runs on Spot span that spectrum, from a fully unique object to a category with real duplicates in the space.
+
+Before that split, though, it's worth being clear about a separate failure mode that affects *any* object, unique or not: **outright misclassification from YOLO's open-vocabulary labelling**. This isn't a near-miss on the category — the detector keys on a coarse visual feature (a boxy enclosure, a metallic jointed profile) that generalizes past the object it's actually looking at. In our testing this produced labels like a Vicon motion-capture camera called a **fire alarm**, a robotic arm called a **metal pipe**, and a 3D printer called a **refrigerator**. Since the caption and attribute list are generated off the same crop as the (wrong) label, a misclassified object carries a plausible but incorrect description all the way into the scene graph — no amount of relational reasoning fixes a query if the node itself is mislabeled at the source.
+
+### 1. `farm_tripod` — unique object, retrieval alone succeeds
+
+<video controls muted playsinline poster="/blog/assets/farm/video/farm_tripod_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
+  <source src="/blog/assets/farm/video/farm_tripod_1080p.webm" type="video/webm">
+  <source src="/blog/assets/farm/video/farm_tripod_1080p.mp4" type="video/mp4">
+</video>
+
+Query: `"tripod"`. There's exactly one tripod in the space, visually distinct from everything around it — no spatial disambiguation is needed. Semantic retrieval alone returns it at rank 1, and Spot navigates straight to it. This is the ceiling case: when an object is unique enough that its caption/embedding alone separates it from every other node, the pipeline works about as well as it can.
+
+### 2. `farm_rubber` — an ambiguous object resolved by a spatial predicate
+
+<video controls muted playsinline poster="/blog/assets/farm/video/farm_rubber_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
+  <source src="/blog/assets/farm/video/farm_rubber_1080p.webm" type="video/webm">
+  <source src="/blog/assets/farm/video/farm_rubber_1080p.mp4" type="video/mp4">
+</video>
+
+Query: `"a stack of black rubber sheets near the small robots"`. Semantic retrieval on "black rubber sheets" alone could not localize the stack directly — it isn't a category YOLO labels cleanly, and the caption embedding wasn't distinctive enough on its own to rank it correctly. This is where the relational side of FARM is supposed to earn its keep: adding the spatial predicate `Near(small robots)` gave the system a second, independent signal to anchor on, and it successfully identified the correct stack — a case where spatial grounding did what the paper claims it should.
+
+### 3. `farm_cabinet` — two ambiguous instances, spatial grounding fails
+
+<video controls muted playsinline poster="/blog/assets/farm/video/farm_cabinet_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
+  <source src="/blog/assets/farm/video/farm_cabinet_1080p.webm" type="video/webm">
+  <source src="/blog/assets/farm/video/farm_cabinet_1080p.mp4" type="video/mp4">
+</video>
+
+The lab has two file cabinets at opposite ends of the map — a real case of a recurring category, exactly the situation spatial predicates are meant to resolve. Query: `"file cabinet next to the tool workstation with a solar-system image on top of it"`, parsed into `NextTo(tool workstation)` and `HasAttribute(solar-system image on top)`. The system goes to the *wrong* cabinet initially. The likely cause is twofold: either the correct cabinet's pose/caption carries high enough uncertainty that it gets outranked outright, or the pipeline never associates the solar-system poster sitting on top of the cabinet as a relation *to* the cabinet in the first place — if that `On(cabinet, poster)` edge is never formed, there's nothing for the query's `HasAttribute` clause to match against, and retrieval falls back to whichever cabinet instance looks most generically like "a cabinet."
+
+Together, these three runs are the clearest evidence for where the FARM thesis holds and where it doesn't yet: uniqueness alone is enough for `farm_tripod`; a single spatial predicate rescued `farm_rubber`; but `farm_cabinet` shows spatial grounding failing exactly where it matters most — two genuinely ambiguous instances of the same category, disambiguated only by a relation the pipeline couldn't reliably form or weigh. See [Replicating FARM in the Real World](/blog/post-3) for the full field report, including the scene-graph reconstruction and additional queries that hit the same relational bottleneck.
 
 ## How It's Used in Planning
 

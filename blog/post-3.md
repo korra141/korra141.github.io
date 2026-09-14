@@ -4,8 +4,6 @@ title: "Replicating FARM in the Real World: What Works, What Doesn't"
 date: 2026-09-04
 ---
 
-# Replicating FARM in the Real World: What Works, What Doesn't
-
 We recently set out to reproduce **FARM (Find Anything using Relational
 Spatial Memory)** end to end on a real Boston Dynamics Spot in our lab: build
 a live 3D scene graph from Spot's RGB-D stream, query it in natural
@@ -60,7 +58,7 @@ interactive viewer embedded directly on the page — is a natural next step.
 
 ## Three demo runs
 
-### 1. `farm_tripod` — success
+### 1. `farm_tripod` <span class="status-badge status-success">Success</span>
 
 <video controls muted playsinline poster="/blog/assets/farm/video/farm_tripod_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
   <source src="/blog/assets/farm/video/farm_tripod_1080p.webm" type="video/webm">
@@ -71,7 +69,7 @@ Query: `"tripod"`. A single, visually distinctive object — retrieval
 returns it at rank 1, the coordinate is read off the matched scene-graph
 entry, and the navigation graph plans a direct route. Spot reaches it.
 
-### 2. `farm_rubber` — partial success
+### 2. `farm_rubber` <span class="status-badge status-partial">Partial Success</span>
 
 <video controls muted playsinline poster="/blog/assets/farm/video/farm_rubber_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
   <source src="/blog/assets/farm/video/farm_rubber_1080p.webm" type="video/webm">
@@ -86,7 +84,7 @@ distinctive enough to rank correctly. Adding the relational clue
 position about a metre from the true object — off, but close enough for
 the navigation graph to plan a route that still lands somewhere usable.
 
-### 3. `farm_cabinet` — failure
+### 3. `farm_cabinet` <span class="status-badge status-fail">Failure</span>
 
 <video controls muted playsinline poster="/blog/assets/farm/video/farm_cabinet_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
   <source src="/blog/assets/farm/video/farm_cabinet_1080p.webm" type="video/webm">
@@ -142,6 +140,7 @@ can be trusted.
 
 ### Relational spatial grounding — the main bottleneck
 
+<div class="callout callout-red" markdown="1">
 This is the result we think matters most for the FARM thesis. The paper's
 premise is that spatial connectors — `near`, `next to`, `between` — let
 the system disambiguate frequently-recurring categories like chairs and
@@ -149,6 +148,7 @@ tables that plain semantic retrieval can't tell apart. In practice, that
 disambiguation step is where the pipeline struggles hardest, even with
 redundant multi-modal evidence (DINO embedding + caption + attributes)
 backing every object.
+</div>
 
 Beyond the recorded `farm_cabinet` case, we saw the same pattern
 qualitatively on other queries during testing:
@@ -185,7 +185,7 @@ anyway.
 ## Reproducing this
 
 The code is at
-[GoldenGait/FARM-Project](https://github.com/GoldenGait/FARM-Project).
+[karthiksomz/FARM-Project](https://github.com/karthiksomz/FARM-Project).
 The offline driver (`scene_graph.offline.run`) takes a FARM-Scenes,
 ScanNet, or `.sens` capture and produces a saved scene state (`.pt`);
 `scripts/view_scene_state.py --pt <file>` opens it in the same
