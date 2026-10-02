@@ -228,4 +228,6 @@ but they're the reason "it works" comes with an asterisk. The code for
 the scene-graph side is at
 [karthiksomz/FARM-Project](https://github.com/karthiksomz/FARM-Project) if
 you want to reproduce this yourself — `scene_graph.offline.run` is the
-entry point either way.
+entry point either way. For the fuller step-by-step — every command above
+plus the troubleshooting that didn't make it into this post — see the
+[full reproduction doc](/blog/assets/farm/document/spot_scene_graph_recreation.pdf).
