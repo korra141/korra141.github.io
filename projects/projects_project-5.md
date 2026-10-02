@@ -23,14 +23,52 @@ Classical robot navigation stacks operate on geometry: occupancy grids, point cl
 
 A 3D scene graph represents a space as a graph of objects (nodes) with semantic attributes — category, caption, bounding box — connected by relations (edges) that capture things like containment, adjacency, or support ("the printer is on the desk," "the desk is in the office"). The nodes make the space *searchable* by description instead of by coordinate; the edges make it *reasoned about* — a planner can traverse "office → desk → printer" instead of treating every object as an unrelated point in space.
 
+## A Short History of 3D Scene Graphs
+
+The structure itself goes back to Armeni et al. (2019), who proposed the 3D scene graph as a layer sitting *on top of* the metric and topological maps SLAM was already producing: nodes are objects carrying semantic attributes, edges are the spatial and temporal relations between them. It's not a replacement for the map — it's a semantic index over one that already exists. That framing has held up: nearly every system since, this project included, still separates "where things are" (a metric map) from "what's related to what" (the graph built on top of it).
+
+One distinction worth naming since it doesn't show up in most papers: **offline vs. online mapping.** The pipeline is roughly the same either way — segment, fuse across frames, merge into persistent objects, caption, link. What changes is the compute budget. Offline, you can afford heavier detectors and larger VLMs against a pre-recorded stream. Online, the same pipeline runs on the robot in real time against whatever compute it's carrying, which is where cheaper open-vocabulary detectors and asynchronous, non-blocking captioning start to matter.
+
+Two things have moved independently since 2019:
+
+**The underlying representation.** Early scene graphs sat on dense point clouds — accurate, but expensive to store and fuse across frames. 3D Gaussian Splatting (Kerbl et al., 2023) gave the field a compact, differentiable alternative — a handful of Gaussian parameters per primitive instead of thousands of points — and later scene-graph work (this project included, which fuses each object into a single 3D Gaussian plus a sparse voxel cloud) adopted it at the object level rather than the whole-scene level the original paper targeted.
+
+**The vocabulary.** Early scene graphs drew node categories from a fixed, closed taxonomy — you could ask for a "chair" only if "chair" was a class the detector was trained on. CLIP (Radford et al., 2021) broke that: an image-text embedding space lets a detector describe something outside a fixed label set at all, and object nodes carry an open-vocabulary caption and embedding instead of a class index.
+
+### Relations After the Fact — and Where Pure Embeddings Fall Short
+
+ConceptGraphs (Gu et al., 2024) is the clearest example of combining both threads with an LLM in the loop: build the open-vocabulary object set first, then prompt an LLM *after mapping* to infer the relational edges between objects from their captions and positions — no hand-coded relation logic, the LLM decides what's "on" what.
+
+The gap that matters for querying, though, shows up even without any relations at all: **embedding-only retrieval can't handle relational composition.** Rank objects purely by similarity between the query text and each object's caption/visual embedding, and a query like *"the glass on the table next to the laptop"* collapses into a soup of similarity to "glass," "table," and "laptop" separately — nothing enforces that the top-ranked glass is actually **on** *that* table **and** that table is actually **next to** *that* laptop. If there are several glasses, on several tables, only one of which sits next to a laptop, embedding similarity alone has no mechanism to select it. This is precisely the failure mode behind `farm_cabinet` below and the disambiguation cases documented in [Replicating FARM in the Real World](/blog/post-3): the correct object is in the graph, correctly described, and still doesn't surface — because nothing checked whether the relation the query asked for actually holds in 3D.
+
+## How FARM Handles Relations
+
+FARM's answer is closer to the opposite of ConceptGraphs': it does **not** ask a VLM to invent relational edges between objects. Instead, the VLM/LLM's job is narrower and happens at *query time*, not at mapping time:
+
+1. **Parse.** An LLM turns the free-text query into symbolic logic over a **fixed, hand-coded predicate set** — `Near`, `On`, `Above`, `Below`, `NextTo`, `Between`, `Inside`, `InRegion`, `LeftOf`, `RightOf`, `InFrontOf`, `Behind`, `Closest`, `Farthest`, `HasAttribute`, `IsCategory`.
+2. **Evaluate geometrically.** Each predicate is checked directly against the 3D scene graph's object positions and extents — not guessed by a language model. `On(cabinet)` is a geometric test (vertical contact + horizontal overlap of two boxes), not an LLM's best guess from a caption.
+3. **Verify on ambiguity.** Where geometry alone leaves close candidates, a VLM is used to adjudicate — the one place a model's judgment enters the relational decision at all.
+
+| Predicate | Kind |
+|---|---|
+| `Near`, `NextTo`, `Between`, `Inside`, `InRegion` | proximity / containment |
+| `On`, `Above`, `Below` | vertical / support |
+| `LeftOf`, `RightOf`, `InFrontOf`, `Behind` | directional |
+| `Closest`, `Farthest` | ranking over a candidate set |
+| `HasAttribute`, `IsCategory` | attribute / category match (not relational — single-object) |
+
+Everything the predicates take as arguments — the query target, the anchor objects, the attributes — stays fully open-vocabulary, resolved the same embedding/caption way as plain retrieval. The predicates are the only closed, fixed part of the system; what they're applied *to* is unrestricted free text. That split is the bet: exact, auditable geometric relations over an open-vocabulary object set, rather than trusting an LLM to both invent and apply the relation in one step.
+
 ## What Is the FARM Project
 
-Captured trajectories (RGB, depth, camera info) are fed into the [FARM project's](https://github.com/karthiksomz/FARM-Project) pipeline, which builds the scene graph: it associates detections across frames into persistent 3D objects, generates captions and embeddings for each, and — in principle — infers the relational edges between them. In practice, on the current data, that last part isn't landing yet: the retrieval script's own log falls back explicitly when it can't find a relational path —
+Captured trajectories (RGB, depth, camera info) are fed into the [FARM project's](https://github.com/karthiksomz/FARM-Project) pipeline, which builds the scene graph: it associates detections across frames into persistent 3D objects and generates captions and embeddings for each. Relations aren't stored as graph edges up front — per the predicate-based design above, they're evaluated at query time. In practice, on the current data, that query-time relational path isn't landing yet: the retrieval script's own log falls back explicitly when predicate execution fails —
 
+<div class="callout callout-red" markdown="1">
 ```
 Relational path unavailable ('NoneType' object has no attribute 'target_description');
 falling back to embedding retrieval.
 ```
+</div>
 
 — meaning queries are currently resolved purely by embedding similarity between the query text and each object's caption/visual embedding, not by any graph structure connecting objects to each other. The graph exists as a flat set of richly-described nodes; the edges aren't reliably there yet.
 
@@ -61,7 +99,7 @@ The core premise FARM is testing is that plain semantic retrieval is enough when
 
 Before that split, though, it's worth being clear about a separate failure mode that affects *any* object, unique or not: **outright misclassification from YOLO's open-vocabulary labelling**. This isn't a near-miss on the category — the detector keys on a coarse visual feature (a boxy enclosure, a metallic jointed profile) that generalizes past the object it's actually looking at. In our testing this produced labels like a Vicon motion-capture camera called a **fire alarm**, a robotic arm called a **metal pipe**, and a 3D printer called a **refrigerator**. Since the caption and attribute list are generated off the same crop as the (wrong) label, a misclassified object carries a plausible but incorrect description all the way into the scene graph — no amount of relational reasoning fixes a query if the node itself is mislabeled at the source.
 
-### 1. `farm_tripod` — unique object, retrieval alone succeeds
+### 1. `farm_tripod` — unique object, retrieval alone succeeds <span class="status-badge status-success">Success</span>
 
 <video controls muted playsinline poster="/blog/assets/farm/video/farm_tripod_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
   <source src="/blog/assets/farm/video/farm_tripod_1080p.webm" type="video/webm">
@@ -70,7 +108,7 @@ Before that split, though, it's worth being clear about a separate failure mode 
 
 Query: `"tripod"`. There's exactly one tripod in the space, visually distinct from everything around it — no spatial disambiguation is needed. Semantic retrieval alone returns it at rank 1, and Spot navigates straight to it. This is the ceiling case: when an object is unique enough that its caption/embedding alone separates it from every other node, the pipeline works about as well as it can.
 
-### 2. `farm_rubber` — an ambiguous object resolved by a spatial predicate
+### 2. `farm_rubber` — an ambiguous object resolved by a spatial predicate <span class="status-badge status-partial">Partial Success</span>
 
 <video controls muted playsinline poster="/blog/assets/farm/video/farm_rubber_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
   <source src="/blog/assets/farm/video/farm_rubber_1080p.webm" type="video/webm">
@@ -79,7 +117,7 @@ Query: `"tripod"`. There's exactly one tripod in the space, visually distinct fr
 
 Query: `"a stack of black rubber sheets near the small robots"`. Semantic retrieval on "black rubber sheets" alone could not localize the stack directly — it isn't a category YOLO labels cleanly, and the caption embedding wasn't distinctive enough on its own to rank it correctly. This is where the relational side of FARM is supposed to earn its keep: adding the spatial predicate `Near(small robots)` gave the system a second, independent signal to anchor on, and it successfully identified the correct stack — a case where spatial grounding did what the paper claims it should.
 
-### 3. `farm_cabinet` — two ambiguous instances, spatial grounding fails
+### 3. `farm_cabinet` — two ambiguous instances, spatial grounding fails <span class="status-badge status-fail">Failure</span>
 
 <video controls muted playsinline poster="/blog/assets/farm/video/farm_cabinet_poster.jpg" style="width:100%;height:auto;border-radius:8px;">
   <source src="/blog/assets/farm/video/farm_cabinet_1080p.webm" type="video/webm">
@@ -105,6 +143,18 @@ The scene graph is meant to be the bridge between a language query and a physica
   </figure>
 </div>
 
+## Explore the Scene Graph
+
+The screenshots above are a screen recording of the Viser browser, not a purpose-built viewer. Since the scene state (`.pt`) and its background point cloud (`cloud.npz`) are just object boxes, captions, and points, they can be exported to a static file and rendered directly in the browser — no Viser session or vLLM backend required. Drag to orbit, scroll to zoom, and click a box to see its caption.
+
+<div class="callout" markdown="1">
+This is currently showing **placeholder data** — a synthetic room and generic boxes — while a real export is prepared. See <code>scripts/export_scene_graph_web.py</code> in the repo for how to point it at an actual <code>scene_state.pt</code>.
+</div>
+
+<div class="scene-viewer-embed">
+  <iframe src="/projects/assets/spot-scene-graph/scene_viewer.html" loading="lazy" title="Interactive 3D scene graph viewer" allow="fullscreen"></iframe>
+</div>
+
 ## Trying to Recreate It on Spot
 
 With retrieval working, the open question is whether it can actually drive navigation on hardware, not just point at a bounding box in a viewer. The first trial run uses Boston Dynamics' own [GraphNav](https://github.com/boston-dynamics/spot-sdk/tree/master/python/examples/graph_nav_command_line) command-line example to build a nav graph and send Spot to a target pose. It works — but two things need care: getting the coordinate frame conventions right when converting a scene-graph object pose into a GraphNav waypoint, and not closing loops through the anchors while recording, since that appears to interfere with how GraphNav's anchoring optimization resolves the graph.
@@ -112,10 +162,17 @@ With retrieval working, the open question is whether it can actually drive navig
 ## Open Questions
 
 1. **Odometry on long trajectories.** Does switching to the Ouster's own IMU fix the drift seen on the bunker-trajectory bag, or is there a deeper extrinsic/sync issue?
-2. **Relational edges.** Why is the relational path unavailable in FARM's output, and is embedding-only retrieval a fundamental ceiling, or just a stopgap until relations are fixed?
+2. **Predicate execution.** Why does query-time predicate evaluation fail on the current data, and is embedding-only fallback a fundamental ceiling, or just a stopgap until predicate execution is fixed?
 3. **Pose error propagation.** How much of the scene graph's object-placement error is attributable to visual odometry specifically, versus the object detection/association stage?
 4. **Query → waypoint.** What's the right way to convert a retrieved object's 3D bounding box into a GraphNav-compatible target pose, robust to the coordinate-frame and anchoring pitfalls already seen?
 
 ## What's Next
 
-Re-collect the problem trajectory using the Ouster IMU and confirm odometry holds up over the full bunker loop. In parallel, dig into why FARM isn't producing relational edges, since that's the difference between "find object by appearance" and an actual scene *graph*. Once both are more stable, connect a real retrieval result end-to-end to a GraphNav waypoint and run a live "go to the printer" trial on the robot.
+Re-collect the problem trajectory using the Ouster IMU and confirm odometry holds up over the full bunker loop. In parallel, dig into why FARM's query-time predicate execution isn't landing on this data, since that's the difference between "find object by appearance" and actually using the relation a query asked for. Once both are more stable, connect a real retrieval result end-to-end to a GraphNav waypoint and run a live "go to the printer" trial on the robot.
+
+## References
+
+1. Armeni, I., He, Z.-Y., Gwak, J., Zamir, A. R., Fischer, M., Malik, J., & Savarese, S. (2019). *3D Scene Graph: A Structure for Unified Semantics, 3D Space, and Camera*. ICCV, pp. 5664–5673.
+2. Radford, A. et al. (2021). *Learning Transferable Visual Models From Natural Language Supervision*. ICML. (CLIP)
+3. Kerbl, B., Kopanas, G., Leimkühler, T., & Drettakis, G. (2023). *3D Gaussian Splatting for Real-Time Radiance Field Rendering*. ACM Transactions on Graphics (SIGGRAPH).
+4. Gu, Q. et al. (2024). *ConceptGraphs: Open-Vocabulary 3D Scene Graphs for Perception and Planning*. ICRA, pp. 5021–5028. [arXiv:2309.16650](https://arxiv.org/abs/2309.16650)

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scene graph viewer</title>
+<style>
+  :root {
+    --chrome-bg: rgba(250,249,247,0.92);
+    --chrome-text: #1a1a18;
+    --chrome-muted: #5a5a56;
+    --chrome-border: rgba(26,26,24,0.14);
+    --viewport-bg: #15171b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --chrome-bg: rgba(24,24,22,0.88);
+      --chrome-text: #f0ede8;
+      --chrome-muted: #a3a29c;
+      --chrome-border: rgba(240,237,232,0.16);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+    background: var(--viewport-bg);
+    font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  #canvas-wrap { position: absolute; inset: 0; }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .chrome {
+    position: absolute;
+    background: var(--chrome-bg);
+    color: var(--chrome-text);
+    border: 1px solid var(--chrome-border);
+    border-radius: 8px;
+    backdrop-filter: blur(6px);
+  }
+  #hud {
+    top: 12px; left: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--chrome-muted);
+    display: none;
+  }
+  #hud strong { color: var(--chrome-text); font-weight: 700; }
+
+  #controls-bar {
+    top: 12px; right: 12px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  #controls-bar label { display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
+  #controls-bar button {
+    font: inherit; font-size: 12px; font-weight: 700;
+    background: none; border: 1px solid var(--chrome-border); color: var(--chrome-text);
+    border-radius: 5px; padding: 4px 9px; cursor: pointer;
+  }
+  #controls-bar button:hover { background: var(--chrome-border); }
+
+  #hint {
+    bottom: 12px; left: 12px;
+    padding: 5px 10px;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--chrome-muted);
+  }
+
+  #inspector {
+    bottom: 12px; right: 12px;
+    max-width: min(340px, 80vw);
+    padding: 12px 14px;
+    display: none;
+  }
+  #inspector .cat {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--chrome-muted); margin-bottom: 3px;
+  }
+  #inspector .cap { font-size: 13px; line-height: 1.4; }
+  #inspector .id { font-size: 10px; color: var(--chrome-muted); margin-top: 6px; font-family: monospace; }
+
+  #status {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; color: #cfcfca; font-size: 13px; text-align: center; padding: 24px;
+  }
+  #status .bar { width: 200px; height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; }
+  #status .fill { height: 100%; width: 0%; background: #7aa2c9; transition: width 0.15s ease; }
+  #status a { color: #7aa2c9; }
+  #status.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="canvas-wrap"></div>
+
+<div id="status">
+  <div id="status-text">Loading scene graph…</div>
+  <div class="bar"><div class="fill" id="status-fill"></div></div>
+</div>
+
+<div id="hud" class="chrome"></div>
+
+<div id="controls-bar" class="chrome">
+  <label><input type="checkbox" id="toggle-points" checked> points</label>
+  <label><input type="checkbox" id="toggle-boxes" checked> boxes</label>
+  <button id="btn-reset">Reset view</button>
+</div>
+
+<div id="hint" class="chrome">drag to orbit &middot; scroll to zoom &middot; right-drag to pan &middot; click a box for details</div>
+
+<div id="inspector" class="chrome">
+  <div class="cat" id="insp-cat"></div>
+  <div class="cap" id="insp-cap"></div>
+  <div class="id" id="insp-id"></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const DATA_URL = new URLSearchParams(location.search).get('data') || 'scene_graph_data.json';
+
+const wrap = document.getElementById('canvas-wrap');
+const statusEl = document.getElementById('status');
+const statusText = document.getElementById('status-text');
+const statusFill = document.getElementById('status-fill');
+const hud = document.getElementById('hud');
+const inspector = document.getElementById('inspector');
+
+function setStatus(text) { statusText.textContent = text; }
+function setProgress(pct) { statusFill.style.width = Math.max(0, Math.min(100, pct)) + '%'; }
+function fail(msg) {
+  statusEl.innerHTML =
+    '<div>Couldn\'t load a scene graph here.</div>' +
+    '<div style="font-size:11px;color:#9a9a94;max-width:420px">' + msg + '</div>' +
+    '<div style="font-size:11px;margin-top:6px">Export one with ' +
+    '<a href="https://github.com/karthiksomz/FARM-Project/blob/main/scripts/export_scene_graph_web.py" target="_blank" rel="noopener">' +
+    'scripts/export_scene_graph_web.py</a></div>';
+}
+
+// --- fetch with a progress readout (falls back to indeterminate if the
+// server doesn't send Content-Length) ---
+async function fetchJsonWithProgress(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const total = Number(res.headers.get('Content-Length')) || 0;
+  if (!res.body || !total) {
+    setStatus('Loading scene graph…');
+    return await res.json();
+  }
+  const reader = res.body.getReader();
+  const chunks = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    setProgress((received / total) * 100);
+    setStatus('Loading scene graph… ' + (received / 1e6).toFixed(1) + ' / ' + (total / 1e6).toFixed(1) + ' MB');
+  }
+  const blob = new Blob(chunks);
+  return JSON.parse(await blob.text());
+}
+
+// --- three.js setup ---
+let scene, camera, renderer;
+try {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(55, wrap.clientWidth / wrap.clientHeight, 0.02, 500);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+  wrap.appendChild(renderer.domElement);
+} catch (e) {
+  fail('This browser/context could not create a WebGL context (' + e.message + '). Try a ' +
+       'different browser or enabling hardware acceleration.');
+  throw e; // nothing below this works without a renderer
+}
+
+// Data is z-up (robotics convention); three.js is y-up by default. Rotate
+// one root group instead of fighting the camera/controls convention.
+const root = new THREE.Group();
+root.rotation.x = -Math.PI / 2;
+scene.add(root);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x30302c, 1.1));
+const key = new THREE.DirectionalLight(0xffffff, 0.6);
+key.position.set(3, 5, 4);
+scene.add(key);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 0.1;
+
+let pointsObj = null;
+let boxGroup = null;
+let defaultCameraPose = null;
+const pickables = []; // { mesh, object } for raycasting
+
+function frameScene(bounds) {
+  const min = new THREE.Vector3(...bounds.min);
+  const max = new THREE.Vector3(...bounds.max);
+  const center = min.clone().add(max).multiplyScalar(0.5);
+  const size = max.clone().sub(min);
+  const radius = Math.max(size.length() * 0.5, 0.5);
+
+  // center/radius are in data (z-up) space; rotate into the root's
+  // y-up-display space the same way root.rotation does.
+  const centerDisp = new THREE.Vector3(center.x, center.z, -center.y);
+  const camPos = centerDisp.clone().add(new THREE.Vector3(radius * 0.9, radius * 0.7, radius * 0.9));
+
+  camera.position.copy(camPos);
+  camera.near = Math.max(radius / 500, 0.01);
+  camera.far = radius * 50;
+  camera.updateProjectionMatrix();
+  controls.target.copy(centerDisp);
+  controls.update();
+  defaultCameraPose = { pos: camPos.clone(), target: centerDisp.clone() };
+}
+
+function buildPointCloud(data) {
+  const xyz = data.points_xyz;
+  const n = xyz.length / 3;
+  if (n === 0) return null;
+  const positions = new Float32Array(xyz);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const rgb = data.points_rgb;
+  let material;
+  if (rgb && rgb.length === xyz.length) {
+    const colors = new Float32Array(n * 3);
+    for (let i = 0; i < n * 3; i++) colors[i] = rgb[i] / 255;
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    material = new THREE.PointsMaterial({ size: 0.02, vertexColors: true, sizeAttenuation: true });
+  } else {
+    // Height-shaded fallback so the room still reads as structure, not noise.
+    const colors = new Float32Array(n * 3);
+    let zmin = Infinity, zmax = -Infinity;
+    for (let i = 0; i < n; i++) { const z = positions[i * 3 + 2]; if (z < zmin) zmin = z; if (z > zmax) zmax = z; }
+    const span = Math.max(zmax - zmin, 1e-3);
+    const c1 = new THREE.Color(0x3a6ea5), c2 = new THREE.Color(0xd9a441);
+    const tmp = new THREE.Color();
+    for (let i = 0; i < n; i++) {
+      const t = (positions[i * 3 + 2] - zmin) / span;
+      tmp.copy(c1).lerp(c2, t);
+      colors[i * 3] = tmp.r; colors[i * 3 + 1] = tmp.g; colors[i * 3 + 2] = tmp.b;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    material = new THREE.PointsMaterial({ size: 0.02, vertexColors: true, sizeAttenuation: true });
+  }
+  return new THREE.Points(geo, material);
+}
+
+function buildBoxes(data) {
+  const group = new THREE.Group();
+  const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+  const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+
+  for (const obj of data.objects) {
+    const color = new THREE.Color(obj.color);
+    const [cx, cy, cz] = obj.center;
+    const [sx, sy, sz] = obj.size.map(v => Math.max(v, 0.02));
+
+    const fillMat = new THREE.MeshStandardMaterial({ color, transparent: true, opacity: 0.16, depthWrite: false });
+    const fill = new THREE.Mesh(boxGeo, fillMat);
+    fill.scale.set(sx, sy, sz);
+    fill.position.set(cx, cy, cz);
+    group.add(fill);
+
+    const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.85 });
+    const edges = new THREE.LineSegments(edgesGeo, lineMat);
+    edges.scale.set(sx, sy, sz);
+    edges.position.set(cx, cy, cz);
+    group.add(edges);
+
+    pickables.push({ mesh: fill, object: obj });
+  }
+  return group;
+}
+
+async function init() {
+  let data;
+  try {
+    data = await fetchJsonWithProgress(DATA_URL);
+  } catch (e) {
+    fail('Fetching <code>' + DATA_URL + '</code> failed (' + e.message + ').');
+    return;
+  }
+
+  setStatus('Building scene…');
+  pointsObj = buildPointCloud(data);
+  if (pointsObj) root.add(pointsObj);
+  boxGroup = buildBoxes(data);
+  root.add(boxGroup);
+
+  frameScene(data.bounds);
+
+  hud.style.display = 'block';
+  hud.innerHTML =
+    '<strong>' + data.meta.object_count + '</strong> objects &middot; ' +
+    '<strong>' + data.meta.point_count.toLocaleString() + '</strong> points' +
+    (data.meta.source ? ' &middot; ' + data.meta.source : '');
+
+  statusEl.classList.add('hidden');
+  animate();
+}
+
+// --- raycasting / click-to-inspect ---
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+renderer.domElement.addEventListener('pointerdown', (ev) => {
+  pointerDownAt = { x: ev.clientX, y: ev.clientY, t: performance.now() };
+});
+let pointerDownAt = null;
+renderer.domElement.addEventListener('pointerup', (ev) => {
+  if (!pointerDownAt) return;
+  const moved = Math.hypot(ev.clientX - pointerDownAt.x, ev.clientY - pointerDownAt.y);
+  const held = performance.now() - pointerDownAt.t;
+  pointerDownAt = null;
+  if (moved > 4 || held > 350) return; // treat as a drag, not a click
+
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(pickables.map(p => p.mesh), false);
+  if (hits.length === 0) { inspector.style.display = 'none'; return; }
+  const hitMesh = hits[0].object;
+  const found = pickables.find(p => p.mesh === hitMesh);
+  if (!found) return;
+  showInspector(found.object);
+});
+
+function showInspector(obj) {
+  document.getElementById('insp-cat').textContent = obj.category || '(uncategorized)';
+  document.getElementById('insp-cap').textContent = obj.caption || '(no caption)';
+  document.getElementById('insp-id').textContent = 'object_id ' + obj.id;
+  inspector.style.display = 'block';
+}
+
+// --- UI wiring ---
+document.getElementById('toggle-points').addEventListener('change', (ev) => {
+  if (pointsObj) pointsObj.visible = ev.target.checked;
+});
+document.getElementById('toggle-boxes').addEventListener('change', (ev) => {
+  if (boxGroup) boxGroup.visible = ev.target.checked;
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!defaultCameraPose) return;
+  camera.position.copy(defaultCameraPose.pos);
+  controls.target.copy(defaultCameraPose.target);
+  controls.update();
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = wrap.clientWidth / wrap.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+init();
+</script>
+</body>
+</html>

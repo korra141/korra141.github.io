@@ -248,6 +248,21 @@ a:hover {
 
   img, video { border-radius: 8px; }
 
+  // embedded interactive viewer (e.g. the Three.js scene-graph explorer),
+  // sized as a responsive 16:10 box so it never forces the page to scroll
+  // sideways or grow past the content column.
+  .scene-viewer-embed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 1.2em 0;
+
+    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  }
+
   // status pill, e.g. next to a demo-run heading: `## Title <span class="status-badge status-success">Success</span>`
   .status-badge {
     display: inline-block;
