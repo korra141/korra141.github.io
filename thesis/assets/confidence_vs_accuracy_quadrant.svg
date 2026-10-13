@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="640" height="640" fill="#ffffff"/>
+
+  <!-- plot area -->
+  <g>
+    <rect x="80" y="60" width="480" height="480" fill="none" stroke="#dddddd" stroke-width="1.5"/>
+    <line x1="320" y1="60" x2="320" y2="540" stroke="#eeeeee" stroke-width="1.5"/>
+    <line x1="80" y1="300" x2="560" y2="300" stroke="#eeeeee" stroke-width="1.5"/>
+  </g>
+
+  <!-- axis titles -->
+  <text x="320" y="36" text-anchor="middle" font-size="15" fill="#5a5a56">Calibrated</text>
+  <text x="320" y="572" text-anchor="middle" font-size="15" fill="#5a5a56">Miscalibrated</text>
+  <text x="60" y="300" text-anchor="middle" font-size="15" fill="#5a5a56" transform="rotate(-90 60 300)">Diffuse</text>
+  <text x="596" y="300" text-anchor="middle" font-size="15" fill="#5a5a56" transform="rotate(-90 596 300)">Sharp</text>
+
+  <!-- top-right: confidently right (the goal) -->
+  <g>
+    <rect x="320" y="60" width="240" height="240" fill="#3b8a5e" opacity="0.1"/>
+    <text x="440" y="150" text-anchor="middle" font-size="18" font-weight="600" fill="#2c6b48">Confidently right</text>
+    <text x="440" y="172" text-anchor="middle" font-size="12.5" fill="#2c6b48">sharp and calibrated</text>
+    <!-- target (true state) -->
+    <line x1="440" y1="210" x2="440" y2="230" stroke="#1a1a18" stroke-width="1.5"/>
+    <line x1="430" y1="220" x2="450" y2="220" stroke="#1a1a18" stroke-width="1.5"/>
+    <!-- small, centered spread: sharp + right -->
+    <circle cx="440" cy="220" r="16" fill="none" stroke="#2c6b48" stroke-width="2.5"/>
+  </g>
+
+  <!-- top-left: timidly right -->
+  <g>
+    <text x="200" y="150" text-anchor="middle" font-size="18" font-weight="600" fill="#1a1a18">Timidly right</text>
+    <text x="200" y="172" text-anchor="middle" font-size="12.5" fill="#5a5a56">calibrated, but too broad</text>
+    <!-- target (true state) -->
+    <line x1="200" y1="210" x2="200" y2="230" stroke="#1a1a18" stroke-width="1.5"/>
+    <line x1="190" y1="220" x2="210" y2="220" stroke="#1a1a18" stroke-width="1.5"/>
+    <!-- wide, centered spread: diffuse but right on average -->
+    <circle cx="200" cy="220" r="55" fill="none" stroke="#3b6fb6" stroke-width="2.5"/>
+  </g>
+
+  <!-- bottom-right: confidently wrong -->
+  <g>
+    <rect x="320" y="300" width="240" height="240" fill="#c0392b" opacity="0.07"/>
+    <text x="440" y="390" text-anchor="middle" font-size="18" font-weight="600" fill="#a33327">Confidently wrong</text>
+    <text x="440" y="412" text-anchor="middle" font-size="12.5" fill="#a33327">sharp, off-target [13]</text>
+    <!-- target (true state) -->
+    <line x1="440" y1="450" x2="440" y2="470" stroke="#1a1a18" stroke-width="1.5"/>
+    <line x1="430" y1="460" x2="450" y2="460" stroke="#1a1a18" stroke-width="1.5"/>
+    <!-- small spread, offset from target: sharp but wrong -->
+    <circle cx="485" cy="460" r="16" fill="none" stroke="#a33327" stroke-width="2.5"/>
+  </g>
+
+  <!-- bottom-left: timidly wrong -->
+  <g>
+    <text x="200" y="390" text-anchor="middle" font-size="18" font-weight="600" fill="#1a1a18">Timidly wrong</text>
+    <text x="200" y="412" text-anchor="middle" font-size="12.5" fill="#5a5a56">broad and off-target</text>
+    <!-- target (true state) -->
+    <line x1="200" y1="450" x2="200" y2="470" stroke="#1a1a18" stroke-width="1.5"/>
+    <line x1="190" y1="460" x2="210" y2="460" stroke="#1a1a18" stroke-width="1.5"/>
+    <!-- wide spread, offset from target -->
+    <circle cx="245" cy="460" r="55" fill="none" stroke="#5a5a56" stroke-width="2.5"/>
+  </g>
+
+  <text x="320" y="600" text-anchor="middle" font-size="12.5" fill="#5a5a56">+ marks the true state; circle is each model's predictive spread, drawn to scale within its quadrant</text>
+</svg>
